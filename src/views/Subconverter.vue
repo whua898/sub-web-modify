@@ -38,7 +38,7 @@
                   <el-option v-for="(v, k) in options.shortTypes" :key="k" :label="k" :value="v"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="远程配置:">
+              <el-form-item label="远程配置:" v-if="showRemoteConfig">
                 <el-select v-model="form.remoteConfig" allow-create filterable placeholder="请选择" style="width: 100%">
                   <el-option-group v-for="group in options.remoteConfig" :key="group.label" :label="group.label">
                     <el-option v-for="item in group.options" :key="item.value" :label="item.label"
@@ -837,6 +837,15 @@ export default {
       scriptConfig: scriptConfigSample,
       sampleConfig: remoteConfigSample
     };
+  },
+  computed: {
+    showRemoteConfig() {
+      const client = this.form.clientType;
+      if (client === 'auto') return true; // 自动模式下显示
+      // 需要远程配置的客户端关键字
+      const configSupport = ['clash', 'surge', 'quan', 'loon', 'mellow', 'surfboard', 'singbox'];
+      return configSupport.some(c => client.includes(c));
+    }
   },
   created() {
     document.title = "在线订阅转换工具";
