@@ -38,9 +38,6 @@
                   <el-option v-for="(v, k) in options.shortTypes" :key="k" :label="k" :value="v"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="自定义名称:">
-                <el-input v-model="form.customSlug" placeholder="可选，如 GCP，生成 .../GCP 链接"></el-input>
-              </el-form-item>
               <el-form-item label="远程配置:" v-if="showRemoteConfig">
                 <el-select v-model="form.remoteConfig" allow-create filterable placeholder="请选择" style="width: 100%">
                   <el-option-group v-for="group in options.remoteConfig" :key="group.label" :label="group.label">
@@ -172,6 +169,9 @@
                     ref="copy-btn" icon="el-icon-document-copy">复制
                   </el-button>
                 </el-input>
+              </el-form-item>
+              <el-form-item label="定制后缀:">
+                <el-input v-model="form.customSlug" placeholder="可选，如 GCP，生成 .../GCP 链接"></el-input>
               </el-form-item>
               <el-form-item label-width="0px" style="margin-top: 40px; text-align: center">
                 <el-button style="width: 120px" type="danger" @click="makeUrl"
