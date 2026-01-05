@@ -16,10 +16,12 @@ Sub-Web-Modify 是基于 [CareyWang/sub-web](https://github.com/CareyWang/sub-we
 ### 🌟 主要特性
 
 - 🎨 **现代化界面设计** - 全新重制的 CSS 样式，更加美观易用
-- 🌓 **智能主题切换** - 支持亮色/暗色主题，可自动适应系统主题
+- 🌓 **智能主题切换** - 支持亮色/暗色主题，可自动跟随系统设置，并支持手动切换
 - 📱 **响应式设计** - 完美适配桌面端和移动端设备
-- 🔗 **多种订阅格式支持** - 支持 Clash、Surge、V2Ray、Quantumult X 等主流客户端
-- 🛠 **高级功能** - 节点筛选、重命名、配置定制等高级选项
+- 🔗 **多种订阅格式支持** - 支持 Clash、Surge、V2Ray、Quantumult X、Sing-Box 等主流客户端
+- 🛠️ **高级功能** - 节点筛选、重命名、配置定制等高级选项
+- ⚙️ **动态表单** - “远程配置”等选项会根据所选客户端类型自动显示或隐藏，界面更清爽
+- 🧩 **兼容多种短链服务** - 支持不同 API 格式的短链服务
 
 ## 🖥️ 界面预览
 
@@ -29,60 +31,58 @@ Sub-Web-Modify 是基于 [CareyWang/sub-web](https://github.com/CareyWang/sub-we
 
 ### 方式一：Cloudflare Pages 部署（推荐）
 
-1. **Fork 本仓库** 到你的 GitHub 账户
+1. **Fork 本仓库** 到你的 GitHub 账户。
 2. **修改配置文件**：
-   - 编辑 `src\views\Subconverter.vue` - 配置默认后端地址
-   - 编辑 `.env` - 设置环境变量
+   - **（必须）** 编辑 `.env` 文件，设置你的默认后端地址、短链服务等。
+     ```env
+     # 默认后端地址
+     VUE_APP_SUBCONVERTER_DEFAULT_BACKEND=https://your-backend-url.com
+     ```
+   - **（可选）** 编辑 `src/views/Subconverter.vue`，在 `options` 中添加或修改内置的后端、短链、远程配置列表。
 3. **连接到 Cloudflare Pages**：
-   - 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)
-   - 进入 Pages → 创建项目 → 连接到 Git
-   - 选择你 Fork 的仓库
+   - 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)。
+   - 进入 **Workers & Pages** → **创建应用程序** → **Pages** → **连接到 Git**。
+   - 选择你 Fork 的仓库。
 4. **配置构建设置**：
-   ```
-   框架预设：Vue
-   构建命令：npm run build
-   构建输出目录：/dist
-   ```
-5. **部署完成** - 自动部署，每次推送代码都会自动更新
+   - **框架预设**：`Vue`
+   - **构建命令**：`npm run build`
+   - **构建输出目录**：`/dist`
+5. **部署完成** - 点击“保存并部署”。之后每次向 `main` 分支推送代码都会自动更新。
 
-### 方式二：EdgeOne Pages 部署
+### 方式二：使用 Docker 部署
 
-1. **Fork 本仓库** 到你的 GitHub 账户
-2. **修改配置文件**：
-   - 编辑 `src\views\Subconverter.vue` - 配置默认后端地址
-   - 编辑 `.env` - 设置环境变量
-3. **连接到 EdgeOne Pages**：
-   - 登录 [EdgeOne 控制台](https://console.cloud.tencent.com/edgeone)
-   - 进入 Pages → 新建项目 → 连接 Git 仓库
-   - 选择你 Fork 的仓库
-4. **配置构建设置**：
+本项目已配置好 GitHub Actions，当你向 `main` 分支推送代码时，会自动构建一个 Docker 镜像并推送到 `ghcr.io`。
+
+1. **Fork 本仓库** 并进行你想要的修改。
+2. **推送到 `main` 分支**，等待 Actions 完成。
+3. **部署镜像**：
+   在你的服务器上，使用以下命令部署：
+   ```sh
+   # 将 <your-github-username> 替换为你的 GitHub 用户名
+   docker run -d --name sub-web --restart=always -p 8080:80 ghcr.io/<your-github-username>/sub-web-modify:latest
    ```
-   框架预设：Vue
-   根目录：./
-   输出目录：dist
-   编译命令：npm run build
-   安装命令：npm install
-   ```
-5. **部署完成** - 自动部署，每次推送代码都会自动更新
+   现在，你可以通过 `http://你的服务器IP:8080` 访问。
 
 ## 🔧 配置说明
 
-部署前需要修改以下两个文件：
+### 1. `.env` 文件
+这是配置默认值的核心文件。
 
-### 1. src\views\Subconverter.vue
-修改默认后端地址和相关配置
-
-### 2. .env
-设置环境变量：
 ```env
-# 默认后端地址
+# 项目地址，用于界面上的 GitHub 图标跳转
+VUE_APP_PROJECT = "https://github.com/whua898/sub-web-modify"
+
+# 默认的订阅转换后端地址
 VUE_APP_SUBCONVERTER_DEFAULT_BACKEND=https://your-backend-url.com
 
-# 短链接服务
+# 默认的短链接服务地址
 VUE_APP_MYURLS_DEFAULT_BACKEND=https://your-short-url-service.com
 
-# 其他配置...
+# 其他链接...
 ```
+
+### 2. `src/views/Subconverter.vue`
+如果你想修改下拉菜单中的**内置选项列表**，请编辑此文件中的 `options` 对象。
 
 ## 📋 支持的客户端
 
@@ -94,23 +94,14 @@ VUE_APP_MYURLS_DEFAULT_BACKEND=https://your-short-url-service.com
 | V2Ray | 全平台 | ✅ |
 | Sing-Box | 全平台 | ✅ |
 
-## 🛠️ 主要功能
-
-- **订阅链接转换** - 支持各种格式的订阅链接相互转换
-- **节点筛选** - 通过关键字或正则表达式筛选节点
-- **节点重命名** - 批量重命名节点，支持正则替换
-- **自定义配置** - 支持上传自定义的远程配置文件
-- **短链接生成** - 集成短链接服务，方便分享
-- **响应式设计** - 完美适配各种屏幕尺寸
-
 ## 🤝 贡献指南
 
 欢迎提交 Issue 和 Pull Request 来帮助改进项目！
 
 ## 📞 支持与反馈
 
-- 🐛 **Bug 报告**：[Issues](https://github.com/youshandefeiyang/sub-web-modify/issues)
-- 💡 **功能建议**：[Issues](https://github.com/youshandefeiyang/sub-web-modify/issues)
+- 🐛 **Bug 报告**：[Issues](https://github.com/whua898/sub-web-modify/issues)
+- 💡 **功能建议**：[Issues](https://github.com/whua898/sub-web-modify/issues)
 
 ## 📄 许可证
 
@@ -121,4 +112,3 @@ VUE_APP_MYURLS_DEFAULT_BACKEND=https://your-short-url-service.com
 - 特别感谢原作者 [youshandefeiyang](https://github.com/youshandefeiyang) 的杰出贡献
 - 感谢 [CareyWang/sub-web](https://github.com/CareyWang/sub-web) 提供的原始项目基础
 - 感谢所有贡献者的辛勤付出
-
