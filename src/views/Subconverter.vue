@@ -332,6 +332,7 @@ export default {
           "自动判断客户端": "auto",
         },
         shortTypes: {
+          "short.wh8.xx.kg": "https://short.wh8.xx.kg/short",
           "v1.mk": "https://v1.mk/short",
           "d1.mk": "https://d1.mk/short",
           "dlj.tf": "https://dlj.tf/short",
@@ -787,7 +788,7 @@ export default {
         sourceSubUrl: "",
         clientType: "",
         customBackend: this.getUrlParam() == "" ? defaultBackend : this.getUrlParam(),
-        shortType: "https://v1.mk/short",
+        shortType: "https://short.wh8.xx.kg/short",
         remoteConfig: "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online.ini",
         excludeRemarks: "",
         includeRemarks: "",
