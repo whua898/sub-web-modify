@@ -38,6 +38,9 @@
                   <el-option v-for="(v, k) in options.shortTypes" :key="k" :label="k" :value="v"></el-option>
                 </el-select>
               </el-form-item>
+              <el-form-item label="自定义名称:">
+                <el-input v-model="form.customSlug" placeholder="可选，如 GCP，生成 .../GCP 链接"></el-input>
+              </el-form-item>
               <el-form-item label="远程配置:" v-if="showRemoteConfig">
                 <el-select v-model="form.remoteConfig" allow-create filterable placeholder="请选择" style="width: 100%">
                   <el-option-group v-for="group in options.remoteConfig" :key="group.label" :label="group.label">
@@ -164,7 +167,7 @@
                 </el-input>
               </el-form-item>
               <el-form-item label="订阅短链:">
-                <el-input class="copy-content" v-model="customShortSubUrl" placeholder="输入自定义短链接后缀，点击生成短链接可反复生成">
+                <el-input class="copy-content" disabled v-model="customShortSubUrl" placeholder="点击下方按钮生成">
                   <el-button slot="append" v-clipboard:copy="customShortSubUrl" v-clipboard:success="onCopy"
                     ref="copy-btn" icon="el-icon-document-copy">复制
                   </el-button>
@@ -788,7 +791,8 @@ export default {
         sourceSubUrl: "",
         clientType: "",
         customBackend: this.getUrlParam() == "" ? defaultBackend : this.getUrlParam(),
-        shortType: "https://short.wh8.xx.kg", // Changed to base URL
+        shortType: "https://short.wh8.xx.kg",
+        customSlug: "",
         remoteConfig: "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online.ini",
         excludeRemarks: "",
         includeRemarks: "",
@@ -1073,8 +1077,8 @@ export default {
           url: this.customSubUrl
         };
 
-        if (this.customShortSubUrl.trim() !== "" && !this.customShortSubUrl.trim().startsWith("http")) {
-          requestBody.slug = this.customShortSubUrl.trim();
+        if (this.form.customSlug.trim() !== "") {
+          requestBody.slug = this.form.customSlug.trim();
         }
 
         this.$axios
@@ -1105,8 +1109,8 @@ export default {
         this.loading1 = true;
         let data = new FormData();
         data.append("longUrl", btoa(this.customSubUrl));
-        if (this.customShortSubUrl.trim() != "") {
-          data.append("shortKey", this.customShortSubUrl.trim().indexOf("http") < 0 ? this.customShortSubUrl.trim() : "");
+        if (this.form.customSlug.trim() != "") {
+          data.append("shortKey", this.form.customSlug.trim());
         }
         this.$axios
           .post(duan, data, {

@@ -47,14 +47,14 @@ Sub-Web-Modify 是基于 [CareyWang/sub-web](https://github.com/CareyWang/sub-we
    - **框架预设**：`Vue`
    - **构建命令**：`npm run build`
    - **构建输出目录**：`/dist`
-5. **部署完成** - 点击“保存并部署”。之后每次向 `main` 分支推送代码都会自动更新。
+5. **部署完成** - 点击“保存并部署”。之后每次向 `master` 分支推送代码都会自动更新。
 
 ### 方式二：使用 Docker 部署
 
-本项目已配置好 GitHub Actions，当你向 `main` 分支推送代码时，会自动构建一个 Docker 镜像并推送到 `ghcr.io`。
+本项目已配置好 GitHub Actions，当你向 `master` 分支推送代码时，会自动构建一个 Docker 镜像并推送到 `ghcr.io`。
 
 1. **Fork 本仓库** 并进行你想要的修改。
-2. **推送到 `main` 分支**，等待 Actions 完成。
+2. **推送到 `master` 分支**，等待 Actions 完成。
 3. **部署镜像**：
    
    **使用 Docker CLI:**
