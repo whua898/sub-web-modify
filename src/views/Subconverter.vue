@@ -171,7 +171,7 @@
                 </el-input>
               </el-form-item>
               <el-form-item label="定制后缀:">
-                <el-input v-model="form.customSlug" placeholder="可选，如 GCP，生成 .../GCP 链接"></el-input>
+                <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 16.66%; min-width: 150px;"></el-input>
               </el-form-item>
               <el-form-item label-width="0px" style="margin-top: 40px; text-align: center">
                 <el-button style="width: 120px" type="danger" @click="makeUrl"
