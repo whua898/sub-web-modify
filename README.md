@@ -56,10 +56,28 @@ Sub-Web-Modify 是基于 [CareyWang/sub-web](https://github.com/CareyWang/sub-we
 1. **Fork 本仓库** 并进行你想要的修改。
 2. **推送到 `main` 分支**，等待 Actions 完成。
 3. **部署镜像**：
-   在你的服务器上，使用以下命令部署：
+   
+   **使用 Docker CLI:**
    ```sh
    # 将 <your-github-username> 替换为你的 GitHub 用户名
    docker run -d --name sub-web --restart=always -p 8080:80 ghcr.io/<your-github-username>/sub-web-modify:latest
+   ```
+
+   **使用 Docker Compose (推荐):**
+   创建一个 `docker-compose.yml` 文件：
+   ```yaml
+   version: '3'
+   services:
+     sub-web:
+       image: ghcr.io/<your-github-username>/sub-web-modify:latest
+       container_name: sub-web
+       restart: always
+       ports:
+         - "8080:80"
+   ```
+   然后运行：
+   ```sh
+   docker compose up -d
    ```
    现在，你可以通过 `http://你的服务器IP:8080` 访问。
 
