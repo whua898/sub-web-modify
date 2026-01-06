@@ -292,7 +292,7 @@ const remoteConfigSample = process.env.VUE_APP_SUBCONVERTER_REMOTE_CONFIG
 const scriptConfigSample = process.env.VUE_APP_SCRIPT_CONFIG
 const filterConfigSample = process.env.VUE_APP_FILTER_CONFIG
 const defaultBackend = process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND
-const shortUrlBackend = process.env.VUE_APP_MYURLS_DEFAULT_BACKEND + '/short'
+const shortUrlBackend = process.env.VUE_APP_MYURLS_DEFAULT_BACKEND
 const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_BACKEND + '/sub.php'
 const basicVideo = process.env.VUE_APP_BASIC_VIDEO
 const advancedVideo = process.env.VUE_APP_ADVANCED_VIDEO
@@ -332,7 +332,7 @@ export default {
           "自动判断客户端": "auto",
         },
         shortTypes: {
-          "short.wh8.xx.kg": "https://short.wh8.xx.kg", // Cloudflare Pages 格式
+          "short.wh8.xx.kg": "https://short.wh8.xx.kg/short", // Cloudflare Pages 格式
           "v1.mk": "https://v1.mk/short",
           "d1.mk": "https://d1.mk/short",
           "dlj.tf": "https://dlj.tf/short",
@@ -788,7 +788,7 @@ export default {
         sourceSubUrl: "",
         clientType: "",
         customBackend: this.getUrlParam() == "" ? defaultBackend : this.getUrlParam(),
-        shortType: "https://short.wh8.xx.kg",
+        shortType: "https://short.wh8.xx.kg/short",
         remoteConfig: "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online.ini",
         excludeRemarks: "",
         includeRemarks: "",
@@ -1082,8 +1082,7 @@ export default {
         self.loading1 = true;
 
         if (self.form.shortType.includes("short.wh8.xx.kg")) {
-          const shortenerBaseUrl = self.form.shortType;
-          const createEndpoint = shortenerBaseUrl + "/create";
+          const createEndpoint = self.form.shortType; // 直接使用完整 URL
 
           let requestBody = {
             url: self.customSubUrl,
@@ -1099,10 +1098,14 @@ export default {
               headers: { "Content-Type": "application/json" }
             })
             .then(res => {
-              if (res.data && res.data.link) {
+              if (res.data && res.data.link) { // 兼容你的 API 返回 link 字段
                 self.customShortSubUrl = res.data.link;
                 self.$copyText(res.data.link);
                 self.$message.success("短链接已复制到剪贴板");
+              } else if (res.data.Code === 1 && res.data.ShortUrl) { // 兼容 v1.mk 格式
+                 self.customShortSubUrl = res.data.ShortUrl;
+                 self.$copyText(res.data.ShortUrl);
+                 self.$message.success("短链接已复制到剪贴板");
               } else {
                 throw new Error("API返回格式不正确或无链接");
               }
@@ -1112,7 +1115,13 @@ export default {
                 const existingUrl = error.response.data?.existingUrl || '';
 
                 if (existingUrl === self.customSubUrl) {
+                  // 尝试构建短链，注意这里假设短链格式
+                  // 如果 API 返回了 link 最好，如果没有，只能尝试拼接
+                  // 但 409 响应里通常不带 link，所以这里可能需要优化
+                  // 既然是冲突，说明 slug 已知
+                  const shortenerBaseUrl = self.form.shortType.replace("/short", "");
                   const existingShortLink = `${shortenerBaseUrl}/${currentSlug}`;
+
                   self.customShortSubUrl = existingShortLink;
                   self.$copyText(existingShortLink);
                   self.$message.success("后缀已存在，已自动使用现有短链接");
@@ -1123,9 +1132,9 @@ export default {
                 const existingSourceSubs = self.parseCustomUrl(existingUrl);
                 const currentSourceSubs = self.parseCustomUrl(self.customSubUrl);
 
-                let message = `该定制后缀已被占用，但指向不同的订阅内容。<br/>
-                              <strong>已存在的订阅:</strong><div class="url-compare">${existingSourceSubs}</div>
-                              <strong>当前的订阅:</strong><div class="url-compare">${currentSourceSubs}</div>
+                let message = `该定制后缀已被占用，但指向不同的订阅内容。<br/><br/>
+                              <strong>已存在的订阅:</strong><br/><div class="url-compare">${existingSourceSubs}</div><br/>
+                              <strong>当前的订阅:</strong><br/><div class="url-compare">${currentSourceSubs}</div><br/>
                               是否覆盖它？`;
 
                 self.$confirm(message, '短链接后缀冲突', {
@@ -1171,7 +1180,7 @@ export default {
               } else {
                 if (currentSlug) {
                   self.$message.warning("自定义后缀已被占用，正在尝试生成随机后缀...");
-                  shortenerRequest("");
+                  shortenerRequest(""); // 递归调用，但不带 slug
                 } else {
                   self.$message.error("短链接获取失败：" + res.data.Message);
                 }
