@@ -788,7 +788,7 @@ export default {
         sourceSubUrl: "",
         clientType: "",
         customBackend: this.getUrlParam() == "" ? defaultBackend : this.getUrlParam(),
-        shortType: "https://short.wh8.xx.kg/short",
+        shortType: "https://short.wh8.xx.kg", // Cloudflare Pages 格式
         remoteConfig: "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online.ini",
         excludeRemarks: "",
         includeRemarks: "",
@@ -1060,6 +1060,20 @@ export default {
       this.$copyText(this.customSubUrl);
       this.$message.success("定制订阅已复制到剪贴板");
     },
+    parseCustomUrl(longUrl) {
+      try {
+        const url = new URL(longUrl);
+        const params = new URLSearchParams(url.search);
+        const encodedSource = params.get('url');
+        if (encodedSource) {
+          const decodedSource = decodeURIComponent(encodedSource);
+          return decodedSource.split('|').join('\n');
+        }
+        return "无法解析原始订阅";
+      } catch (e) {
+        return "无效的长链接格式";
+      }
+    },
     makeShortUrl() {
       const shortenerRequest = (slug, overwrite = false) => {
         this.loading1 = true;
@@ -1096,16 +1110,37 @@ export default {
             })
             .catch(error => {
               if (error.response && error.response.status === 409) {
-                this.$confirm('该后缀已被占用，是否覆盖它？', '提示', {
+                const existingUrl = error.response.data?.existingUrl || '';
+
+                if (existingUrl === this.customSubUrl) {
+                  const existingShortLink = `${shortenerBaseUrl}/${slug}`;
+                  this.customShortSubUrl = existingShortLink;
+                  this.$copyText(existingShortLink);
+                  this.$message.success("后缀已存在，已自动使用现有短链接");
+                  this.loading1 = false;
+                  return;
+                }
+
+                const existingSourceSubs = this.parseCustomUrl(existingUrl);
+                const currentSourceSubs = this.form.sourceSubUrl;
+
+                let message = `该定制后缀已被占用，但指向不同的订阅内容。<br/><br/>
+                              <strong>已存在的订阅:</strong><br/><div class="url-compare">${existingSourceSubs}</div><br/>
+                              <strong>当前的订阅:</strong><br/><div class="url-compare">${currentSourceSubs}</div><br/>
+                              是否覆盖它？`;
+
+                this.$confirm(message, '短链接后缀冲突', {
                   confirmButtonText: '覆盖',
                   cancelButtonText: '取消',
-                  type: 'warning'
+                  type: 'warning',
+                  dangerouslyUseHTMLString: true,
+                  customClass: 'long-url-confirm-box'
                 }).then(() => {
-                  shortenerRequest(slug, true); // 传递 overwrite: true 再次请求
+                  shortenerRequest(slug, true);
                 }).catch(() => {
                   this.$message({
                     type: 'info',
-                    message: '已取消覆盖'
+                    message: '已取消操作'
                   });
                   this.loading1 = false;
                 });
@@ -1135,7 +1170,12 @@ export default {
                 this.$copyText(res.data.ShortUrl);
                 this.$message.success("短链接已复制到剪贴板");
               } else {
-                this.$message.error("短链接获取失败：" + res.data.Message);
+                if (slug) {
+                  this.$message.warning("自定义后缀已被占用，正在尝试生成随机后缀...");
+                  shortenerRequest();
+                } else {
+                  this.$message.error("短链接获取失败：" + res.data.Message);
+                }
               }
             })
             .catch(() => {
@@ -1379,3 +1419,24 @@ export default {
   }
 };
 </script>
+<style>
+.long-url-confirm-box .el-message-box__content {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.url-compare {
+  background-color: #f5f5f5;
+  padding: 10px;
+  border-radius: 4px;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+}
+.dark-mode .url-compare {
+  background-color: #2a2a2a;
+  border-color: #444;
+}
+</style>
