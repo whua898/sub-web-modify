@@ -1116,11 +1116,12 @@ export default {
                   self.customShortSubUrl = existingShortLink;
                   self.$copyText(existingShortLink);
                   self.$message.success("后缀已存在，已自动使用现有短链接");
+                  self.loading1 = false;
                   return;
                 }
 
                 const existingSourceSubs = self.parseCustomUrl(existingUrl);
-                const currentSourceSubs = self.form.sourceSubUrl;
+                const currentSourceSubs = self.parseCustomUrl(self.customSubUrl); // Corrected this line
 
                 let message = `该定制后缀已被占用，但指向不同的订阅内容。<br/><br/>
                               <strong>已存在的订阅:</strong><br/><div class="url-compare">${existingSourceSubs}</div><br/>
@@ -1137,14 +1138,18 @@ export default {
                   shortenerRequest(currentSlug, true);
                 }).catch(() => {
                   self.$message({ type: 'info', message: '已取消操作' });
+                  self.loading1 = false;
                 });
               } else {
                 console.error("短链接获取失败:", error);
                 self.$message.error("短链接获取失败：" + (error.response?.data?.message || error.message || "未知错误"));
+                self.loading1 = false;
               }
             })
             .finally(() => {
-              self.loading1 = false;
+              if (self.loading1) { // Only set to false if not handled by other paths
+                self.loading1 = false;
+              }
             });
         }
         else {
@@ -1166,7 +1171,7 @@ export default {
               } else {
                 if (currentSlug) {
                   self.$message.warning("自定义后缀已被占用，正在尝试生成随机后缀...");
-                  shortenerRequest("");
+                  shortenerRequest(""); // 递归调用，但不带 slug
                 } else {
                   self.$message.error("短链接获取失败：" + res.data.Message);
                 }
@@ -1181,6 +1186,7 @@ export default {
         }
       };
 
+      const slug = this.customShortSubUrl.trim().startsWith("http") ? "" : this.customShortSubUrl.trim();
       shortenerRequest(slug);
     },
     confirmUploadConfig() {
