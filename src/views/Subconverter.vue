@@ -662,22 +662,22 @@ export default {
               {
                 label: "几鸡",
                 value:
-                  "https://gist.github.com/jklolixxs/bfd5061dceeef85e84401482f5c92e42/raw/JiJi.ini"
+                  "https://gist.githubusercontent.com/jklolixxs/bfd5061dceeef85e84401482f5c92e42/raw/JiJi.ini"
               },
               {
                 label: "四季加速",
                 value:
-                  "https://gist.github.com/jklolixxs/6ff6e7658033e9b535e24ade072cf374/raw/SJ.ini"
+                  "https://gist.githubusercontent.com/jklolixxs/6ff6e7658033e9b535e24ade072cf374/raw/SJ.ini"
               },
               {
                 label: "ImmTelecom",
                 value:
-                  "https://gist.github.com/jklolixxs/24f4f58bb646ee2c625803eb916fe36d/raw/ImmTelecom.ini"
+                  "https://gist.githubusercontent.com/jklolixxs/24f4f58bb646ee2c625803eb916fe36d/raw/ImmTelecom.ini"
               },
               {
                 label: "AmyTelecom",
                 value:
-                  "https://gist.github.com/jklolixxs/b53d315cd1cede23af83322c26ce34ec/raw/AmyTelecom.ini"
+                  "https://gist.githubusercontent.com/jklolixxs/b53d315cd1cede23af83322c26ce34ec/raw/AmyTelecom.ini"
               },
               {
                 label: "LinkCube",
@@ -687,17 +687,17 @@ export default {
               {
                 label: "Miaona",
                 value:
-                  "https://gist.github.com/jklolixxs/ff8ddbf2526cafa568d064006a7008e7/raw/Miaona.ini"
+                  "https://gist.githubusercontent.com/jklolixxs/ff8ddbf2526cafa568d064006a7008e7/raw/Miaona.ini"
               },
               {
                 label: "Foo&Friends",
                 value:
-                  "https://gist.github.com/jklolixxs/df8fda1aa225db44e70c8ac0978a3da4/raw/Foo&Friends.ini"
+                  "https://gist.githubusercontent.com/jklolixxs/df8fda1aa225db44e70c8ac0978a3da4/raw/Foo&Friends.ini"
               },
               {
                 label: "ABCloud",
                 value:
-                  "https://gist.github.com/jklolixxs/b1f91606165b1df82e5481b08fd02e00/raw/ABCloud.ini"
+                  "https://gist.githubusercontent.com/jklolixxs/b1f91606165b1df82e5481b08fd02e00/raw/ABCloud.ini"
               },
               {
                 label: "咸鱼",
@@ -1076,7 +1076,8 @@ export default {
     },
     makeShortUrl() {
       const self = this;
-      const slug = self.customShortSubUrl.trim().startsWith("http") ? "" : self.customShortSubUrl.trim();
+      // 确保 slug 变量只在需要时定义一次
+      const initialSlug = self.customShortSubUrl.trim().startsWith("http") ? "" : self.customShortSubUrl.trim();
 
       const shortenerRequest = (currentSlug, overwrite = false) => {
         self.loading1 = true;
@@ -1138,18 +1139,14 @@ export default {
                   shortenerRequest(currentSlug, true);
                 }).catch(() => {
                   self.$message({ type: 'info', message: '已取消操作' });
-                  self.loading1 = false;
                 });
               } else {
                 console.error("短链接获取失败:", error);
                 self.$message.error("短链接获取失败：" + (error.response?.data?.message || error.message || "未知错误"));
-                self.loading1 = false;
               }
             })
             .finally(() => {
-              if (self.loading1) {
-                self.loading1 = false;
-              }
+              self.loading1 = false; // 确保在所有路径都设置 loading1 为 false
             });
         }
         else {
@@ -1186,7 +1183,7 @@ export default {
         }
       };
 
-      shortenerRequest(slug);
+      shortenerRequest(initialSlug);
     },
     confirmUploadConfig() {
       this.loading2 = true;
@@ -1421,6 +1418,8 @@ export default {
 .long-url-confirm-box .el-message-box__content {
   white-space: pre-wrap;
   word-break: break-all;
+  max-height: 300px; /* 增加最大高度 */
+  overflow-y: auto; /* 允许滚动 */
 }
 .url-compare {
   background-color: #f5f5f5;
