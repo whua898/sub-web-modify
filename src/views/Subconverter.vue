@@ -1061,7 +1061,7 @@ export default {
       this.$message.success("定制订阅已复制到剪贴板");
     },
     makeShortUrl() {
-      const shortenerRequest = (slug) => {
+      const shortenerRequest = (slug, overwrite = false) => {
         this.loading1 = true;
         // 检查当前选中的短链服务是否是 Cloudflare Pages 格式的
         if (this.form.shortType.includes("short.wh8.xx.kg")) {
@@ -1070,7 +1070,8 @@ export default {
           const createEndpoint = shortenerBaseUrl + "/create";
 
           let requestBody = {
-            url: this.customSubUrl
+            url: this.customSubUrl,
+            overwrite: overwrite
           };
 
           if (slug) {
@@ -1094,10 +1095,20 @@ export default {
               }
             })
             .catch(error => {
-              // 如果是带自定义后缀请求失败，则尝试不带后缀再请求一次
-              if (slug) {
-                this.$message.warning("自定义后缀已被占用，正在尝试生成随机后缀...");
-                shortenerRequest(); // 递归调用，但不带 slug
+              if (error.response && error.response.status === 409) {
+                this.$confirm('该后缀已被占用，是否覆盖它？', '提示', {
+                  confirmButtonText: '覆盖',
+                  cancelButtonText: '取消',
+                  type: 'warning'
+                }).then(() => {
+                  shortenerRequest(slug, true); // 传递 overwrite: true 再次请求
+                }).catch(() => {
+                  this.$message({
+                    type: 'info',
+                    message: '已取消覆盖'
+                  });
+                  this.loading1 = false;
+                });
               } else {
                 console.error("短链接获取失败:", error);
                 this.$message.error("短链接获取失败：" + (error.response?.data?.message || error.message || "未知错误"));
@@ -1124,13 +1135,7 @@ export default {
                 this.$copyText(res.data.ShortUrl);
                 this.$message.success("短链接已复制到剪贴板");
               } else {
-                // 如果是带自定义后缀请求失败，则尝试不带后缀再请求一次
-                if (slug) {
-                  this.$message.warning("自定义后缀已被占用，正在尝试生成随机后缀...");
-                  shortenerRequest(); // 递归调用，但不带 slug
-                } else {
-                  this.$message.error("短链接获取失败：" + res.data.Message);
-                }
+                this.$message.error("短链接获取失败：" + res.data.Message);
               }
             })
             .catch(() => {
