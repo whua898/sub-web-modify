@@ -788,7 +788,8 @@ export default {
         sourceSubUrl: "",
         clientType: "",
         customBackend: this.getUrlParam() == "" ? defaultBackend : this.getUrlParam(),
-        shortType: "https://short.wh8.xx.kg", // Cloudflare Pages 格式
+        shortType: "https://short.wh8.xx.kg",
+        customSlug: "",
         remoteConfig: "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online.ini",
         excludeRemarks: "",
         includeRemarks: "",
@@ -1060,6 +1061,20 @@ export default {
       this.$copyText(this.customSubUrl);
       this.$message.success("定制订阅已复制到剪贴板");
     },
+    parseCustomUrl(longUrl) {
+      try {
+        const url = new URL(longUrl);
+        const params = new URLSearchParams(url.search);
+        const encodedSource = params.get('url');
+        if (encodedSource) {
+          const decodedSource = decodeURIComponent(encodedSource);
+          return decodedSource.split('|').join('\n');
+        }
+        return "无法解析原始订阅";
+      } catch (e) {
+        return "无效的长链接格式";
+      }
+    },
     makeShortUrl() {
       const self = this; // Store Vue instance context
       const shortenerRequest = (slug, overwrite = false) => {
@@ -1067,7 +1082,7 @@ export default {
         // 检查当前选中的短链服务是否是 Cloudflare Pages 格式的
         if (self.form.shortType.includes("short.wh8.xx.kg")) {
           // Cloudflare Pages 格式
-          let shortenerBaseUrl = self.form.shortType;
+          let shortenerBaseUrl = self.form.shortType.replace("/short", ""); // 确保是基础URL
           const createEndpoint = shortenerBaseUrl + "/create";
 
           let requestBody = {
