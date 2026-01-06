@@ -1061,16 +1061,17 @@ export default {
       this.$message.success("定制订阅已复制到剪贴板");
     },
     makeShortUrl() {
+      const self = this; // Store Vue instance context
       const shortenerRequest = (slug, overwrite = false) => {
-        this.loading1 = true;
+        self.loading1 = true;
         // 检查当前选中的短链服务是否是 Cloudflare Pages 格式的
-        if (this.form.shortType.includes("short.wh8.xx.kg")) {
+        if (self.form.shortType.includes("short.wh8.xx.kg")) {
           // Cloudflare Pages 格式
-          let shortenerBaseUrl = this.form.shortType;
+          let shortenerBaseUrl = self.form.shortType;
           const createEndpoint = shortenerBaseUrl + "/create";
 
           let requestBody = {
-            url: this.customSubUrl,
+            url: self.customSubUrl,
             overwrite: overwrite
           };
 
@@ -1078,7 +1079,7 @@ export default {
             requestBody.slug = slug;
           }
 
-          this.$axios
+          self.$axios
             .post(createEndpoint, requestBody, {
               headers: {
                 "Content-Type": "application/json"
@@ -1086,10 +1087,10 @@ export default {
             })
             .then(res => {
               if (res.data && res.data.link) {
-                this.customShortSubUrl = res.data.link;
-                this.$copyText(res.data.link);
-                this.$message.success("短链接已复制到剪贴板");
-                this.loading1 = false;
+                self.customShortSubUrl = res.data.link;
+                self.$copyText(res.data.link);
+                self.$message.success("短链接已复制到剪贴板");
+                self.loading1 = false;
               } else {
                 throw new Error("API返回格式不正确或无链接");
               }
@@ -1098,24 +1099,24 @@ export default {
               if (error.response && error.response.status === 409) {
                 const existingUrl = error.response.data?.existingUrl || '';
 
-                if (existingUrl === this.customSubUrl) {
+                if (existingUrl === self.customSubUrl) {
                   const existingShortLink = `${shortenerBaseUrl}/${slug}`;
-                  this.customShortSubUrl = existingShortLink;
-                  this.$copyText(existingShortLink);
-                  this.$message.success("后缀已存在，已自动使用现有短链接");
-                  this.loading1 = false;
+                  self.customShortSubUrl = existingShortLink;
+                  self.$copyText(existingShortLink);
+                  self.$message.success("后缀已存在，已自动使用现有短链接");
+                  self.loading1 = false;
                   return;
                 }
 
-                const existingSourceSubs = this.parseCustomUrl(existingUrl);
-                const currentSourceSubs = this.form.sourceSubUrl;
+                const existingSourceSubs = self.parseCustomUrl(existingUrl);
+                const currentSourceSubs = self.form.sourceSubUrl;
 
                 let message = `该定制后缀已被占用，但指向不同的订阅内容。<br/><br/>
                               <strong>已存在的订阅:</strong><br/><div class="url-compare">${existingSourceSubs}</div><br/>
                               <strong>当前的订阅:</strong><br/><div class="url-compare">${currentSourceSubs}</div><br/>
                               是否覆盖它？`;
 
-                this.$confirm(message, '短链接后缀冲突', {
+                self.$confirm(message, '短链接后缀冲突', {
                   confirmButtonText: '覆盖',
                   cancelButtonText: '取消',
                   type: 'warning',
@@ -1124,27 +1125,27 @@ export default {
                 }).then(() => {
                   shortenerRequest(slug, true);
                 }).catch(() => {
-                  this.$message({
+                  self.$message({
                     type: 'info',
                     message: '已取消操作'
                   });
-                  this.loading1 = false;
+                  self.loading1 = false;
                 });
               } else {
                 console.error("短链接获取失败:", error);
-                this.$message.error("短链接获取失败：" + (error.response?.data?.message || error.message || "未知错误"));
-                this.loading1 = false;
+                self.$message.error("短链接获取失败：" + (error.response?.data?.message || error.message || "未知错误"));
+                self.loading1 = false;
               }
             });
         } else {
           // 原始逻辑 (v1.mk 等)
-          let duan = this.form.shortType;
+          let duan = self.form.shortType;
           let data = new FormData();
-          data.append("longUrl", btoa(this.customSubUrl));
+          data.append("longUrl", btoa(self.customSubUrl));
           if (slug) {
             data.append("shortKey", slug);
           }
-          this.$axios
+          self.$axios
             .post(duan, data, {
               header: {
                 "Content-Type": "application/form-data; charset=utf-8"
@@ -1152,23 +1153,23 @@ export default {
             })
             .then(res => {
               if (res.data.Code === 1 && res.data.ShortUrl !== "") {
-                this.customShortSubUrl = res.data.ShortUrl;
-                this.$copyText(res.data.ShortUrl);
-                this.$message.success("短链接已复制到剪贴板");
+                self.customShortSubUrl = res.data.ShortUrl;
+                self.$copyText(res.data.ShortUrl);
+                self.$message.success("短链接已复制到剪贴板");
               } else {
                 if (slug) {
-                  this.$message.warning("自定义后缀已被占用，正在尝试生成随机后缀...");
+                  self.$message.warning("自定义后缀已被占用，正在尝试生成随机后缀...");
                   shortenerRequest();
                 } else {
-                  this.$message.error("短链接获取失败：" + res.data.Message);
+                  self.$message.error("短链接获取失败：" + res.data.Message);
                 }
               }
             })
             .catch(() => {
-              this.$message.error("短链接获取失败");
+              self.$message.error("短链接获取失败");
             })
             .finally(() => {
-              this.loading1 = false;
+              self.loading1 = false;
             });
         }
       };
