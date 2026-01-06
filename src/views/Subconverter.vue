@@ -1081,7 +1081,6 @@ export default {
       const shortenerRequest = (currentSlug, overwrite = false) => {
         self.loading1 = true;
 
-        // Cloudflare Pages 格式
         if (self.form.shortType.includes("short.wh8.xx.kg")) {
           const shortenerBaseUrl = self.form.shortType;
           const createEndpoint = shortenerBaseUrl + "/create";
@@ -1111,6 +1110,7 @@ export default {
             .catch(error => {
               if (error.response && error.response.status === 409) {
                 const existingUrl = error.response.data?.existingUrl || '';
+
                 if (existingUrl === self.customSubUrl) {
                   const existingShortLink = `${shortenerBaseUrl}/${currentSlug}`;
                   self.customShortSubUrl = existingShortLink;
@@ -1147,7 +1147,6 @@ export default {
               self.loading1 = false;
             });
         }
-        // 原始逻辑 (v1.mk 等)
         else {
           const duan = self.form.shortType;
           let data = new FormData();
@@ -1167,7 +1166,7 @@ export default {
               } else {
                 if (currentSlug) {
                   self.$message.warning("自定义后缀已被占用，正在尝试生成随机后缀...");
-                  shortenerRequest(""); // 递归调用，但不带 slug
+                  shortenerRequest("");
                 } else {
                   self.$message.error("短链接获取失败：" + res.data.Message);
                 }
