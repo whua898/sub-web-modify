@@ -667,17 +667,17 @@ export default {
               {
                 label: "四季加速",
                 value:
-                  "https://gist.githubusercontent.com/jklolixxs/6ff6e7658033e9b535e24ade072cf374/raw/SJ.ini"
+                  "https://gist.github.com/jklolixxs/6ff6e7658033e9b535e24ade072cf374/raw/SJ.ini"
               },
               {
                 label: "ImmTelecom",
                 value:
-                  "https://gist.githubusercontent.com/jklolixxs/24f4f58bb646ee2c625803eb916fe36d/raw/ImmTelecom.ini"
+                  "https://gist.github.com/jklolixxs/24f4f58bb646ee2c625803eb916fe36d/raw/ImmTelecom.ini"
               },
               {
                 label: "AmyTelecom",
                 value:
-                  "https://gist.githubusercontent.com/jklolixxs/b53d315cd1cede23af83322c26ce34ec/raw/AmyTelecom.ini"
+                  "https://gist.github.com/jklolixxs/b53d315cd1cede23af83322c26ce34ec/raw/AmyTelecom.ini"
               },
               {
                 label: "LinkCube",
@@ -1060,27 +1060,13 @@ export default {
       this.$copyText(this.customSubUrl);
       this.$message.success("定制订阅已复制到剪贴板");
     },
-    parseCustomUrl(longUrl) {
-      try {
-        const url = new URL(longUrl);
-        const params = new URLSearchParams(url.search);
-        const encodedSource = params.get('url');
-        if (encodedSource) {
-          const decodedSource = decodeURIComponent(encodedSource);
-          return decodedSource.split('|').join('\n');
-        }
-        return "无法解析原始订阅";
-      } catch (e) {
-        return "无效的长链接格式";
-      }
-    },
     makeShortUrl() {
       const shortenerRequest = (slug, overwrite = false) => {
         this.loading1 = true;
         // 检查当前选中的短链服务是否是 Cloudflare Pages 格式的
         if (this.form.shortType.includes("short.wh8.xx.kg")) {
           // Cloudflare Pages 格式
-          let shortenerBaseUrl = this.form.shortType.replace("/short", ""); // 确保是基础URL
+          let shortenerBaseUrl = this.form.shortType;
           const createEndpoint = shortenerBaseUrl + "/create";
 
           let requestBody = {
