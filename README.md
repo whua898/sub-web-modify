@@ -93,8 +93,8 @@ VUE_APP_PROJECT = "https://github.com/whua898/sub-web-modify"
 # 默认的订阅转换后端地址
 VUE_APP_SUBCONVERTER_DEFAULT_BACKEND=https://your-backend-url.com
 
-# 默认的短链接服务地址
-VUE_APP_MYURLS_DEFAULT_BACKEND=https://your-short-url-service.com
+# 默认的短链接服务地址（注意：必须包含 /short 后缀）
+VUE_APP_MYURLS_DEFAULT_BACKEND=https://your-short-url-service.com/short
 
 # 其他链接...
 ```
