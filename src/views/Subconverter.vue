@@ -1132,9 +1132,9 @@ export default {
                 const existingSourceSubs = self.parseCustomUrl(existingUrl);
                 const currentSourceSubs = self.parseCustomUrl(self.customSubUrl);
 
-                let message = `该定制后缀已被占用，但指向不同的订阅内容。<br/><br/>
-                              <strong>已存在的订阅:</strong><br/><div class="url-compare">${existingSourceSubs}</div><br/>
-                              <strong>当前的订阅:</strong><br/><div class="url-compare">${currentSourceSubs}</div><br/>
+                let message = `该定制后缀已被占用，但指向不同的订阅内容。<br/>
+                              <strong>已存在的订阅:</strong><div class="url-compare">${existingSourceSubs}</div>
+                              <strong>当前的订阅:</strong><div class="url-compare">${currentSourceSubs}</div>
                               是否覆盖它？`;
 
                 self.$confirm(message, '短链接后缀冲突', {
