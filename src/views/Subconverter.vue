@@ -1121,7 +1121,7 @@ export default {
                 }
 
                 const existingSourceSubs = self.parseCustomUrl(existingUrl);
-                const currentSourceSubs = self.parseCustomUrl(self.customSubUrl); // Corrected this line
+                const currentSourceSubs = self.parseCustomUrl(self.customSubUrl);
 
                 let message = `该定制后缀已被占用，但指向不同的订阅内容。<br/><br/>
                               <strong>已存在的订阅:</strong><br/><div class="url-compare">${existingSourceSubs}</div><br/>
@@ -1147,7 +1147,7 @@ export default {
               }
             })
             .finally(() => {
-              if (self.loading1) { // Only set to false if not handled by other paths
+              if (self.loading1) {
                 self.loading1 = false;
               }
             });
@@ -1171,7 +1171,7 @@ export default {
               } else {
                 if (currentSlug) {
                   self.$message.warning("自定义后缀已被占用，正在尝试生成随机后缀...");
-                  shortenerRequest(""); // 递归调用，但不带 slug
+                  shortenerRequest("");
                 } else {
                   self.$message.error("短链接获取失败：" + res.data.Message);
                 }
@@ -1186,7 +1186,6 @@ export default {
         }
       };
 
-      const slug = this.customShortSubUrl.trim().startsWith("http") ? "" : this.customShortSubUrl.trim();
       shortenerRequest(slug);
     },
     confirmUploadConfig() {
