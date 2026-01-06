@@ -789,7 +789,6 @@ export default {
         clientType: "",
         customBackend: this.getUrlParam() == "" ? defaultBackend : this.getUrlParam(),
         shortType: "https://short.wh8.xx.kg",
-        customSlug: "",
         remoteConfig: "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online.ini",
         excludeRemarks: "",
         includeRemarks: "",
@@ -1076,13 +1075,15 @@ export default {
       }
     },
     makeShortUrl() {
-      const self = this; // Store Vue instance context
-      const shortenerRequest = (slug, overwrite = false) => {
+      const self = this;
+      const slug = self.customShortSubUrl.trim().startsWith("http") ? "" : self.customShortSubUrl.trim();
+
+      const shortenerRequest = (currentSlug, overwrite = false) => {
         self.loading1 = true;
-        // 检查当前选中的短链服务是否是 Cloudflare Pages 格式的
+
+        // Cloudflare Pages 格式
         if (self.form.shortType.includes("short.wh8.xx.kg")) {
-          // Cloudflare Pages 格式
-          let shortenerBaseUrl = self.form.shortType.replace("/short", ""); // 确保是基础URL
+          const shortenerBaseUrl = self.form.shortType;
           const createEndpoint = shortenerBaseUrl + "/create";
 
           let requestBody = {
@@ -1090,22 +1091,19 @@ export default {
             overwrite: overwrite
           };
 
-          if (slug) {
-            requestBody.slug = slug;
+          if (currentSlug) {
+            requestBody.slug = currentSlug;
           }
 
           self.$axios
             .post(createEndpoint, requestBody, {
-              headers: {
-                "Content-Type": "application/json"
-              }
+              headers: { "Content-Type": "application/json" }
             })
             .then(res => {
               if (res.data && res.data.link) {
                 self.customShortSubUrl = res.data.link;
                 self.$copyText(res.data.link);
                 self.$message.success("短链接已复制到剪贴板");
-                self.loading1 = false;
               } else {
                 throw new Error("API返回格式不正确或无链接");
               }
@@ -1113,13 +1111,11 @@ export default {
             .catch(error => {
               if (error.response && error.response.status === 409) {
                 const existingUrl = error.response.data?.existingUrl || '';
-
                 if (existingUrl === self.customSubUrl) {
-                  const existingShortLink = `${shortenerBaseUrl}/${slug}`;
+                  const existingShortLink = `${shortenerBaseUrl}/${currentSlug}`;
                   self.customShortSubUrl = existingShortLink;
                   self.$copyText(existingShortLink);
                   self.$message.success("后缀已存在，已自动使用现有短链接");
-                  self.loading1 = false;
                   return;
                 }
 
@@ -1138,33 +1134,30 @@ export default {
                   dangerouslyUseHTMLString: true,
                   customClass: 'long-url-confirm-box'
                 }).then(() => {
-                  shortenerRequest(slug, true);
+                  shortenerRequest(currentSlug, true);
                 }).catch(() => {
-                  self.$message({
-                    type: 'info',
-                    message: '已取消操作'
-                  });
-                  self.loading1 = false;
+                  self.$message({ type: 'info', message: '已取消操作' });
                 });
               } else {
                 console.error("短链接获取失败:", error);
                 self.$message.error("短链接获取失败：" + (error.response?.data?.message || error.message || "未知错误"));
-                self.loading1 = false;
               }
+            })
+            .finally(() => {
+              self.loading1 = false;
             });
-        } else {
-          // 原始逻辑 (v1.mk 等)
-          let duan = self.form.shortType;
+        }
+        // 原始逻辑 (v1.mk 等)
+        else {
+          const duan = self.form.shortType;
           let data = new FormData();
           data.append("longUrl", btoa(self.customSubUrl));
-          if (slug) {
-            data.append("shortKey", slug);
+          if (currentSlug) {
+            data.append("shortKey", currentSlug);
           }
           self.$axios
             .post(duan, data, {
-              header: {
-                "Content-Type": "application/form-data; charset=utf-8"
-              }
+              headers: { "Content-Type": "application/form-data; charset=utf-8" }
             })
             .then(res => {
               if (res.data.Code === 1 && res.data.ShortUrl !== "") {
@@ -1172,9 +1165,9 @@ export default {
                 self.$copyText(res.data.ShortUrl);
                 self.$message.success("短链接已复制到剪贴板");
               } else {
-                if (slug) {
+                if (currentSlug) {
                   self.$message.warning("自定义后缀已被占用，正在尝试生成随机后缀...");
-                  shortenerRequest();
+                  shortenerRequest(""); // 递归调用，但不带 slug
                 } else {
                   self.$message.error("短链接获取失败：" + res.data.Message);
                 }
@@ -1189,7 +1182,6 @@ export default {
         }
       };
 
-      const slug = this.customShortSubUrl.trim().startsWith("http") ? "" : this.customShortSubUrl.trim();
       shortenerRequest(slug);
     },
     confirmUploadConfig() {
