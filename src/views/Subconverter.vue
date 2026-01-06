@@ -332,7 +332,7 @@ export default {
           "自动判断客户端": "auto",
         },
         shortTypes: {
-          "short.wh8.xx.kg": "https://short.wh8.xx.kg/short",
+          "short.wh8.xx.kg": "https://short.wh8.xx.kg", // Cloudflare Pages 格式
           "v1.mk": "https://v1.mk/short",
           "d1.mk": "https://d1.mk/short",
           "dlj.tf": "https://dlj.tf/short",
@@ -1061,37 +1061,76 @@ export default {
       this.$message.success("定制订阅已复制到剪贴板");
     },
     makeShortUrl() {
-      let duan =
-        this.form.shortType === ""
-          ? shortUrlBackend
-          : this.form.shortType;
-      this.loading1 = true;
-      let data = new FormData();
-      data.append("longUrl", btoa(this.customSubUrl));
-      if (this.customShortSubUrl.trim() != "") {
-        data.append("shortKey", this.customShortSubUrl.trim().indexOf("http") < 0 ? this.customShortSubUrl.trim() : "");
+      // 检查当前选中的短链服务是否是 Cloudflare Pages 格式的
+      if (this.form.shortType.includes("short.wh8.xx.kg")) {
+        // Cloudflare Pages 格式
+        let shortenerBaseUrl = this.form.shortType.replace("/short", ""); // 确保是基础URL
+        const createEndpoint = shortenerBaseUrl + "/create";
+
+        this.loading1 = true;
+
+        let requestBody = {
+          url: this.customSubUrl
+        };
+
+        // 使用 customShortSubUrl 作为 slug
+        if (this.customShortSubUrl.trim() !== "" && !this.customShortSubUrl.trim().startsWith("http")) {
+          requestBody.slug = this.customShortSubUrl.trim();
+        }
+
+        this.$axios
+          .post(createEndpoint, requestBody, {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          })
+          .then(res => {
+            if (res.data && res.data.link) {
+              this.customShortSubUrl = res.data.link;
+              this.$copyText(res.data.link);
+              this.$message.success("短链接已复制到剪贴板");
+            } else {
+              this.$message.error("短链接获取失败：API返回格式不正确或无链接");
+            }
+          })
+          .catch(error => {
+            console.error("短链接获取失败:", error);
+            this.$message.error("短链接获取失败：" + (error.response?.data?.message || error.message || "未知错误"));
+          })
+          .finally(() => {
+            this.loading1 = false;
+          });
+      } else {
+        // 原始逻辑 (v1.mk 等)
+        let duan = this.form.shortType;
+        this.loading1 = true;
+        let data = new FormData();
+        data.append("longUrl", btoa(this.customSubUrl));
+        if (this.customShortSubUrl.trim() != "") {
+          data.append("shortKey", this.customShortSubUrl.trim().indexOf("http") < 0 ? this.customShortSubUrl.trim() : "");
+        }
+        this.$axios
+          .post(duan, data, {
+            header: {
+              "Content-Type": "application/form-data; charset=utf-8"
+            }
+          })
+          .then(res => {
+            if (res.data.Code === 1 && res.data.ShortUrl !== "") {
+              this.customShortSubUrl = res.data.ShortUrl;
+              this.$copyText(res.data.ShortUrl);
+              this.$message.success("短链接已复制到剪贴板（IOS设备和Safari浏览器不支持自动复制API，需手动点击复制按钮）");
+            } else {
+              this.$message.error("短链接获取失败：" + res.data.Message);
+            }
+          })
+          .catch(() => {
+            this.$message.error("短链接获取失败");
+          })
+          .finally(() => {
+            this.loading1 = false;
+          });
       }
-      this.$axios
-        .post(duan, data, {
-          header: {
-            "Content-Type": "application/form-data; charset=utf-8"
-          }
-        })
-        .then(res => {
-          if (res.data.Code === 1 && res.data.ShortUrl !== "") {
-            this.customShortSubUrl = res.data.ShortUrl;
-            this.$copyText(res.data.ShortUrl);
-            this.$message.success("短链接已复制到剪贴板（IOS设备和Safari浏览器不支持自动复制API，需手动点击复制按钮）");
-          } else {
-            this.$message.error("短链接获取失败：" + res.data.Message);
-          }
-        })
-        .catch(() => {
-          this.$message.error("短链接获取失败");
-        })
-        .finally(() => {
-          this.loading1 = false;
-        });
     },
     confirmUploadConfig() {
       this.loading2 = true;
