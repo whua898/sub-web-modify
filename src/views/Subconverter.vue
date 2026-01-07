@@ -160,20 +160,20 @@
                   <el-button slot="append" v-clipboard:copy="customSubUrl" v-clipboard:success="onCopy" ref="copy-btn"
                     icon="el-icon-document-copy">复制
                   </el-button>
-                  <a slot="prepend" :href="customSubUrl" target="_blank" v-if="customSubUrl" class="link-prepend">
-                    <el-button icon="el-icon-link">访问</el-button>
-                  </a>
                 </el-input>
+                <div class="link-actions" v-if="customSubUrl">
+                  <el-link :href="customSubUrl" target="_blank" icon="el-icon-link" type="primary">访问链接</el-link>
+                </div>
               </el-form-item>
               <el-form-item label="订阅短链:">
                 <el-input class="copy-content" v-model="customShortSubUrl" placeholder="输入自定义短链接后缀，点击生成短链接可反复生成">
                   <el-button slot="append" v-clipboard:copy="customShortSubUrl" v-clipboard:success="onCopy"
                     ref="copy-btn" icon="el-icon-document-copy">复制
                   </el-button>
-                  <a slot="prepend" :href="customShortSubUrl" target="_blank" v-if="customShortSubUrl" class="link-prepend">
-                    <el-button icon="el-icon-link">访问</el-button>
-                  </a>
                 </el-input>
+                <div class="link-actions" v-if="customShortSubUrl">
+                  <el-link :href="customShortSubUrl" target="_blank" icon="el-icon-link" type="primary">访问链接</el-link>
+                </div>
               </el-form-item>
               <el-form-item label="定制后缀:">
                 <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 16.66%; min-width: 150px;"></el-input>
@@ -1486,5 +1486,9 @@ export default {
 }
 .link-prepend {
   text-decoration: none;
+}
+.link-actions {
+  margin-top: 5px;
+  text-align: right;
 }
 </style>
