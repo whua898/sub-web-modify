@@ -17,18 +17,6 @@
           </div>
           <el-container>
             <el-form :model="form" label-width="80px" label-position="left" style="width: 100%">
-
-              <!-- 提示信息移动到这里 -->
-              <el-form-item label-width="0px">
-                <el-alert
-                  title="如果订阅解析失败（如空白或403），请尝试开启下方高级功能中的 '启用 Cloudflare 代理'"
-                  type="warning"
-                  show-icon
-                  :closable="false"
-                  style="margin-bottom: 15px;">
-                </el-alert>
-              </el-form-item>
-
               <el-form-item label="订阅链接:">
                 <el-input v-model="form.sourceSubUrl" type="textarea" rows="3"
                   placeholder="支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔" />
@@ -187,6 +175,9 @@
               </el-form-item>
               <el-form-item label="定制后缀:">
                 <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 16.66%; min-width: 150px;"></el-input>
+                <span style="margin-left: 10px; color: #909399; font-size: 12px;">
+                  <i class="el-icon-info"></i> 解析失败(空白/403)? 尝试开启下方高级功能中的 '启用 Cloudflare 代理'
+                </span>
               </el-form-item>
               <el-form-item label-width="0px" style="margin-top: 40px; text-align: center">
                 <el-button style="width: 120px" type="danger" @click="makeUrl"
@@ -1253,6 +1244,7 @@ export default {
             this.form.remoteConfig = res.data.data;
             this.$copyText(this.form.remoteConfig);
             this.dialogUploadConfigVisible = false;
+            this.btnBoolean = true;
           } else {
             this.$message.error("远程配置上传失败: " + res.data.msg);
           }
