@@ -1206,8 +1206,8 @@ export default {
                 self.$message.success("短链接已复制到剪贴板");
               } else {
                 if (currentSlug) {
-                  self.$message.warning("自定义后缀已被占用，正在尝试生成随机后缀...");
-                  shortenerRequest(""); // 递归调用，但不带 slug
+                  self.$message.error("自定义后缀 '" + currentSlug + "' 已被占用，请尝试其他后缀");
+                  self.loading1 = false;
                 } else {
                   self.$message.error("短链接获取失败：" + res.data.Message);
                 }
