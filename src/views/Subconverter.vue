@@ -46,6 +46,23 @@
                   </el-option-group>
                 </el-select>
               </el-form-item>
+              <el-form-item label="定制后缀:">
+                <el-row :gutter="10" style="width: 100%;">
+                  <el-col :span="16">
+                    <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 100%;"></el-input>
+                  </el-col>
+                  <el-col :span="8">
+                    <el-select v-model="form.customSlug" placeholder="历史后缀" style="width: 100%;">
+                      <el-option
+                        v-for="item in customSlugHistory"
+                        :key="item"
+                        :label="item"
+                        :value="item">
+                      </el-option>
+                    </el-select>
+                  </el-col>
+                </el-row>
+              </el-form-item>
               <el-form-item label-width="0px">
                 <el-collapse>
                   <el-collapse-item>
@@ -832,6 +849,7 @@ export default {
       loading3: false,
       customSubUrl: "",
       customShortSubUrl: "",
+      customSlugHistory: [], // 存储历史定制后缀
       dialogUploadConfigVisible: false,
       loadConfig: "",
       dialogLoadConfigVisible: false,
@@ -879,6 +897,8 @@ export default {
     this.form.clientType = "clash";
     this.getBackendVersion();
     this.anhei();
+    // 加载历史记录
+    this.loadCustomSlugHistory();
     let lightMedia = window.matchMedia('(prefers-color-scheme: light)');
     let darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
     let callback = (e) => {
@@ -953,6 +973,40 @@ export default {
     openLink(url) {
       if (url) {
         window.open(url, '_blank');
+      }
+    },
+    loadCustomSlugHistory() {
+      try {
+        const history = localStorage.getItem('customSlugHistory');
+        if (history) {
+          this.customSlugHistory = JSON.parse(history);
+        } else {
+          this.customSlugHistory = [];
+        }
+      } catch (e) {
+        console.error('加载历史记录失败:', e);
+        this.customSlugHistory = [];
+      }
+    },
+    saveCustomSlugToHistory(slug) {
+      if (!slug || typeof slug !== 'string') return;
+      
+      // 移除重复项
+      this.customSlugHistory = this.customSlugHistory.filter(item => item !== slug);
+      
+      // 添加到开头
+      this.customSlugHistory.unshift(slug);
+      
+      // 限制历史记录数量为100条
+      if (this.customSlugHistory.length > 100) {
+        this.customSlugHistory = this.customSlugHistory.slice(0, 100);
+      }
+      
+      // 保存到本地存储
+      try {
+        localStorage.setItem('customSlugHistory', JSON.stringify(this.customSlugHistory));
+      } catch (e) {
+        console.error('保存历史记录失败:', e);
       }
     },
     goToProject() {
@@ -1219,10 +1273,18 @@ export default {
                 self.customShortSubUrl = res.data.link;
                 self.$copyText(res.data.link);
                 self.$message.success("短链接已复制到剪贴板");
+                // 仅当用户输入了自定义后缀时才保存到历史记录
+                if (currentSlug) {
+                  self.saveCustomSlugToHistory(currentSlug);
+                }
               } else if (res.data.Code === 1 && res.data.ShortUrl) { // 兼容 v1.mk 格式
                  self.customShortSubUrl = res.data.ShortUrl;
                  self.$copyText(res.data.ShortUrl);
                  self.$message.success("短链接已复制到剪贴板");
+                 // 仅当用户输入了自定义后缀时才保存到历史记录
+                 if (currentSlug) {
+                  self.saveCustomSlugToHistory(currentSlug);
+                }
               } else {
                 throw new Error("API返回格式不正确或无链接");
               }
@@ -1243,6 +1305,10 @@ export default {
                   self.$copyText(existingShortLink);
                   self.$message.success("后缀已存在，已自动使用现有短链接");
                   self.loading1 = false;
+                  // 仅当用户输入了自定义后缀时才保存到历史记录
+                  if (currentSlug) {
+                    self.saveCustomSlugToHistory(currentSlug);
+                  }
                   return;
                 }
 
@@ -1295,6 +1361,10 @@ export default {
                 self.customShortSubUrl = res.data.ShortUrl;
                 self.$copyText(res.data.ShortUrl);
                 self.$message.success("短链接已复制到剪贴板");
+                // 仅当用户输入了自定义后缀时才保存到历史记录
+                if (currentSlug) {
+                  self.saveCustomSlugToHistory(currentSlug);
+                }
               } else {
                 if (currentSlug) {
                   self.$message.error("自定义后缀 '" + currentSlug + "' 已被占用，请尝试其他后缀");
