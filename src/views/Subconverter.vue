@@ -993,18 +993,17 @@ export default {
       const proxyUrl = `${currentOrigin}/api/proxy?url=`;
 
       // 将 sourceSub 中的每个链接都检查是否需要代理
-      // IP 地址形式的链接（如 GCP）需要代理，域名形式的链接（如 HF）不需要
+      // 域名形式的链接（如 HF）需要代理，IP 地址形式的链接（如 GCP）不需要
       sourceSub = sourceSub.split('|').map(url => {
         // 只处理 http/https 链接
         if (url.startsWith('http')) {
           try {
             const urlObj = new URL(url);
-            // 检测是否为 IP 地址形式的域名（包括 IPv4 和常见 GCP IP 模式）
-            const isIpAddress = /^(\d+\.\d+\.\d+\.\d+|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/.test(urlObj.hostname) ||
-                             /\d+\.\d+\.\d+\.\d+/.test(urlObj.hostname);
+            // 检测是否为 IP 地址形式的域名
+            const isIpAddress = /^(\d+\.\d+\.\d+\.\d+)/.test(urlObj.hostname);
             
-            // 如果是 IP 地址且不是本地代理链接，则添加代理
-            if (isIpAddress && !url.startsWith(proxyUrl)) {
+            // 如果不是 IP 地址（即域名形式）且不是本地代理链接，则添加代理
+            if (!isIpAddress && !url.startsWith(proxyUrl)) {
               return proxyUrl + encodeURIComponent(url);
             }
           } catch (e) {
