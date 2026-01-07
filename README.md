@@ -21,7 +21,9 @@ Sub-Web-Modify 是基于 [CareyWang/sub-web](https://github.com/CareyWang/sub-we
 - 🔗 **多种订阅格式支持** - 支持 Clash、Surge、V2Ray、Quantumult X、Sing-Box 等主流客户端
 - 🛠️ **高级功能** - 节点筛选、重命名、配置定制等高级选项
 - ⚙️ **动态表单** - “远程配置”等选项会根据所选客户端类型自动显示或隐藏，界面更清爽
-- 🧩 **兼容多种短链服务** - 支持不同 API 格式的短链服务
+- 🧩 **兼容多种短链服务** - 支持不同 API 格式的短链服务，包括 Cloudflare Pages 自建短链
+- 🛡️ **Cloudflare 代理** - 内置代理功能，可解决部分订阅源被墙无法下载的问题
+- 📝 **自定义短链后缀** - 支持指定短链接后缀，并提供智能的冲突检测和覆盖确认
 
 ## 🖥️ 界面预览
 
@@ -37,6 +39,9 @@ Sub-Web-Modify 是基于 [CareyWang/sub-web](https://github.com/CareyWang/sub-we
      ```env
      # 默认后端地址
      VUE_APP_SUBCONVERTER_DEFAULT_BACKEND=https://your-backend-url.com
+     
+     # 默认的短链接服务地址（注意：必须包含 /short 后缀）
+     VUE_APP_MYURLS_DEFAULT_BACKEND=https://your-short-url-service.com/short
      ```
    - **（可选）** 编辑 `src/views/Subconverter.vue`，在 `options` 中添加或修改内置的后端、短链、远程配置列表。
 3. **连接到 Cloudflare Pages**：
