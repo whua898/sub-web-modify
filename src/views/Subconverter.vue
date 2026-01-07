@@ -1103,7 +1103,7 @@ export default {
     },
     makeShortUrl() {
       const self = this;
-      const slug = self.customShortSubUrl.trim().startsWith("http") ? "" : self.customShortSubUrl.trim();
+      const slug = self.form.customSlug.trim();
 
       const shortenerRequest = (currentSlug, overwrite = false) => {
         self.loading1 = true;
