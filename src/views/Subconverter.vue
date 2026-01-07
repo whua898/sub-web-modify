@@ -137,9 +137,7 @@
                           </el-row>
                           <el-row :gutter="10">
                             <el-col :span="12">
-                              <div style="margin-left: 35%">
-                                <el-checkbox v-model="form.tpl.singbox.ipv6" label="Sing-Box支持IPV6"></el-checkbox>
-                              </div>
+                              <el-checkbox v-model="form.tpl.singbox.ipv6" label="Sing-Box支持IPV6"></el-checkbox>
                             </el-col>
                             <el-col :span="12">
                               <el-checkbox v-model="form.cfProxy" label="启用 Cloudflare 代理"></el-checkbox>
@@ -1244,7 +1242,6 @@ export default {
             this.form.remoteConfig = res.data.data;
             this.$copyText(this.form.remoteConfig);
             this.dialogUploadConfigVisible = false;
-            this.btnBoolean = true;
           } else {
             this.$message.error("远程配置上传失败: " + res.data.msg);
           }
