@@ -175,7 +175,7 @@
               </el-form-item>
               <el-form-item label="定制后缀:">
                 <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 16.66%; min-width: 150px;"></el-input>
-                <span style="margin-left: 10px; color: #909399; font-size: 12px;">
+                <span style="margin-left: 10px; color: #909399; font-size: 14px;">
                   <i class="el-icon-info"></i> 解析失败(空白/403)? 尝试开启下方高级功能中的 '启用 Cloudflare 代理'
                 </span>
               </el-form-item>
