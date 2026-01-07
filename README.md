@@ -22,7 +22,7 @@ Sub-Web-Modify 是基于 [CareyWang/sub-web](https://github.com/CareyWang/sub-we
 - 🛠️ **高级功能** - 节点筛选、重命名、配置定制等高级选项
 - ⚙️ **动态表单** - “远程配置”等选项会根据所选客户端类型自动显示或隐藏，界面更清爽
 - 🧩 **兼容多种短链服务** - 支持不同 API 格式的短链服务，包括 Cloudflare Pages 自建短链
-- 🛡️ **Cloudflare 代理** - 内置代理功能，可解决部分订阅源被墙无法下载的问题
+- 🛡️ **Cloudflare 代理** - 内置代理功能，可解决部分订阅源被墙无法下载的问题（如 `xx2.xx.kg` 等域名）
 - 📝 **自定义短链后缀** - 支持指定短链接后缀，并提供智能的冲突检测和覆盖确认
 
 ## 🖥️ 界面预览
@@ -106,6 +106,15 @@ VUE_APP_MYURLS_DEFAULT_BACKEND=https://your-short-url-service.com/short
 
 ### 2. `src/views/Subconverter.vue`
 如果你想修改下拉菜单中的**内置选项列表**，请编辑此文件中的 `options` 对象。
+
+## 💡 常见问题
+
+### Q: 订阅链接转换后没有节点？
+A: 这可能是因为订阅源被墙，或者 SubConverter 后端无法访问该订阅源。
+**解决方法**：在“高级功能” -> “更多选项”中，勾选 **“启用 Cloudflare 代理”**，然后重新生成订阅链接。
+
+### Q: 短链接生成失败？
+A: 请检查 `.env` 文件中的 `VUE_APP_MYURLS_DEFAULT_BACKEND` 是否配置正确，必须包含 `/short` 后缀。
 
 ## 📋 支持的客户端
 
