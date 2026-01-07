@@ -173,10 +173,6 @@
               </el-form-item>
               <el-form-item label="定制后缀:">
                 <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 16.66%; min-width: 150px;"></el-input>
-                <el-checkbox v-model="form.cfProxy" label="启用 Cloudflare 代理" style="margin-left: 10px;"></el-checkbox>
-                <span style="margin-left: 10px; color: #909399; font-size: 14px;">
-                  <i class="el-icon-info"></i> 解析失败(空白/403)? 尝试开启 '启用 Cloudflare 代理'
-                </span>
               </el-form-item>
               <el-form-item label-width="0px" style="margin-top: 40px; text-align: center">
                 <el-button style="width: 120px" type="danger" @click="makeUrl"
@@ -829,8 +825,7 @@ export default {
           singbox: {
             ipv6: false
           }
-        },
-        cfProxy: false // 新增：Cloudflare 代理开关
+        }
       },
       loading1: false,
       loading2: false,
@@ -992,22 +987,32 @@ export default {
       let sourceSub = this.form.sourceSubUrl;
       sourceSub = sourceSub.replace(/(\n|\r|\n\r)/g, "|");
 
-      // 处理 Cloudflare 代理
-      if (this.form.cfProxy) {
-        // 获取当前页面的 origin，例如 https://sub-wh.wh8.xx.kg
-        const currentOrigin = window.location.origin;
-        const proxyUrl = `${currentOrigin}/api/proxy?url=`;
+      // 智能 Cloudflare 代理：自动检测 IP 地址形式的链接并应用代理
+      // 获取当前页面的 origin，例如 https://sub-wh.wh8.xx.kg
+      const currentOrigin = window.location.origin;
+      const proxyUrl = `${currentOrigin}/api/proxy?url=`;
 
-        // 将 sourceSub 中的每个链接都加上代理前缀
-        // 注意：这里假设 sourceSub 是用 | 分隔的
-        sourceSub = sourceSub.split('|').map(url => {
-          // 只代理 http/https 开头的链接，忽略已经是代理的或者非链接内容
-          if (url.startsWith('http') && !url.startsWith(proxyUrl)) {
-            return proxyUrl + encodeURIComponent(url);
+      // 将 sourceSub 中的每个链接都检查是否需要代理
+      // IP 地址形式的链接（如 GCP）需要代理，域名形式的链接（如 HF）不需要
+      sourceSub = sourceSub.split('|').map(url => {
+        // 只处理 http/https 链接
+        if (url.startsWith('http')) {
+          try {
+            const urlObj = new URL(url);
+            // 检测是否为 IP 地址形式的域名（包括 IPv4 和常见 GCP IP 模式）
+            const isIpAddress = /^(\d+\.\d+\.\d+\.\d+|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/.test(urlObj.hostname) ||
+                             /\d+\.\d+\.\d+\.\d+/.test(urlObj.hostname);
+            
+            // 如果是 IP 地址且不是本地代理链接，则添加代理
+            if (isIpAddress && !url.startsWith(proxyUrl)) {
+              return proxyUrl + encodeURIComponent(url);
+            }
+          } catch (e) {
+            console.error('URL 解析错误:', e);
           }
-          return url;
-        }).join('|');
-      }
+        }
+        return url;
+      }).join('|');
 
       this.customSubUrl =
         backend +
