@@ -46,23 +46,6 @@
                   </el-option-group>
                 </el-select>
               </el-form-item>
-              <el-form-item label="定制后缀:">
-                <el-row :gutter="10" style="width: 100%;">
-                  <el-col :span="16">
-                    <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 100%;"></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-select v-model="form.customSlug" placeholder="历史后缀" style="width: 100%;">
-                      <el-option
-                        v-for="item in customSlugHistory"
-                        :key="item"
-                        :label="item"
-                        :value="item">
-                      </el-option>
-                    </el-select>
-                  </el-col>
-                </el-row>
-              </el-form-item>
               <el-form-item label-width="0px">
                 <el-collapse>
                   <el-collapse-item>
@@ -189,7 +172,21 @@
                 </el-input>
               </el-form-item>
               <el-form-item label="定制后缀:">
-                <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 16.66%; min-width: 150px;"></el-input>
+                <el-row :gutter="10" style="width: 100%;">
+                  <el-col :span="16">
+                    <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 100%;"></el-input>
+                  </el-col>
+                  <el-col :span="8">
+                    <el-select v-model="form.customSlug" placeholder="历史后缀" style="width: 100%;">
+                      <el-option
+                        v-for="item in customSlugHistory"
+                        :key="item"
+                        :label="item"
+                        :value="item">
+                      </el-option>
+                    </el-select>
+                  </el-col>
+                </el-row>
               </el-form-item>
               <el-form-item label-width="0px" style="margin-top: 40px; text-align: center">
                 <el-button style="width: 120px" type="danger" @click="makeUrl"
