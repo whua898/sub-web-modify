@@ -148,7 +148,6 @@
                   </el-collapse-item>
                 </el-collapse>
               </el-form-item>
-              <div style="margin-top: 30px"></div>
               <el-divider content-position="center">
                 <el-button type="zhuti" @click="change">
                   <i id="rijian" class="el-icon-sunny"></i>
