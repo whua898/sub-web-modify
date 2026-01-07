@@ -139,9 +139,7 @@
                             <el-col :span="12">
                               <el-checkbox v-model="form.tpl.singbox.ipv6" label="Sing-Box支持IPV6"></el-checkbox>
                             </el-col>
-                            <el-col :span="12">
-                              <el-checkbox v-model="form.cfProxy" label="启用 Cloudflare 代理"></el-checkbox>
-                            </el-col>
+
                           </el-row>
                           <el-button slot="reference">更多选项</el-button>
                         </el-popover>
@@ -173,8 +171,9 @@
               </el-form-item>
               <el-form-item label="定制后缀:">
                 <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 16.66%; min-width: 150px;"></el-input>
+                <el-checkbox v-model="form.cfProxy" label="启用 Cloudflare 代理" style="margin-left: 10px;"></el-checkbox>
                 <span style="margin-left: 10px; color: #909399; font-size: 14px;">
-                  <i class="el-icon-info"></i> 解析失败(空白/403)? 尝试开启下方高级功能中的 '启用 Cloudflare 代理'
+                  <i class="el-icon-info"></i> 解析失败(空白/403)? 尝试开启 '启用 Cloudflare 代理'
                 </span>
               </el-form-item>
               <el-form-item label-width="0px" style="margin-top: 40px; text-align: center">
