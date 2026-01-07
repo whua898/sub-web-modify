@@ -160,6 +160,9 @@
                   <el-button slot="append" v-clipboard:copy="customSubUrl" v-clipboard:success="onCopy" ref="copy-btn"
                     icon="el-icon-document-copy">复制
                   </el-button>
+                  <a slot="prepend" :href="customSubUrl" target="_blank" v-if="customSubUrl" class="link-prepend">
+                    <el-button icon="el-icon-link">访问</el-button>
+                  </a>
                 </el-input>
               </el-form-item>
               <el-form-item label="订阅短链:">
@@ -167,6 +170,9 @@
                   <el-button slot="append" v-clipboard:copy="customShortSubUrl" v-clipboard:success="onCopy"
                     ref="copy-btn" icon="el-icon-document-copy">复制
                   </el-button>
+                  <a slot="prepend" :href="customShortSubUrl" target="_blank" v-if="customShortSubUrl" class="link-prepend">
+                    <el-button icon="el-icon-link">访问</el-button>
+                  </a>
                 </el-input>
               </el-form-item>
               <el-form-item label="定制后缀:">
@@ -1477,5 +1483,8 @@ export default {
 .dark-mode .url-compare {
   background-color: #2a2a2a;
   border-color: #444;
+}
+.link-prepend {
+  text-decoration: none;
 }
 </style>
