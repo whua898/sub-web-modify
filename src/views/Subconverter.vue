@@ -332,7 +332,7 @@ export default {
           "自动判断客户端": "auto",
         },
         shortTypes: {
-          "short.wh8.xx.kg": "https://short.wh8.xx.kg/short", // Cloudflare Pages 格式
+          "short.wh8.xx.kg": "https://short.wh8.xx.kg/short", // 必须带 /short
           "v1.mk": "https://v1.mk/short",
           "d1.mk": "https://d1.mk/short",
           "dlj.tf": "https://dlj.tf/short",
@@ -789,6 +789,7 @@ export default {
         clientType: "",
         customBackend: this.getUrlParam() == "" ? defaultBackend : this.getUrlParam(),
         shortType: "https://short.wh8.xx.kg/short",
+        customSlug: "",
         remoteConfig: "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online.ini",
         excludeRemarks: "",
         includeRemarks: "",
@@ -1115,13 +1116,8 @@ export default {
                 const existingUrl = error.response.data?.existingUrl || '';
 
                 if (existingUrl === self.customSubUrl) {
-                  // 尝试构建短链，注意这里假设短链格式
-                  // 如果 API 返回了 link 最好，如果没有，只能尝试拼接
-                  // 但 409 响应里通常不带 link，所以这里可能需要优化
-                  // 既然是冲突，说明 slug 已知
                   const shortenerBaseUrl = self.form.shortType.replace("/short", "");
                   const existingShortLink = `${shortenerBaseUrl}/${currentSlug}`;
-
                   self.customShortSubUrl = existingShortLink;
                   self.$copyText(existingShortLink);
                   self.$message.success("后缀已存在，已自动使用现有短链接");
@@ -1132,9 +1128,9 @@ export default {
                 const existingSourceSubs = self.parseCustomUrl(existingUrl);
                 const currentSourceSubs = self.parseCustomUrl(self.customSubUrl);
 
-                let message = `该定制后缀已被占用，但指向不同的订阅内容。<br/>
-                              <strong>已存在的订阅:</strong><div class="url-compare">${existingSourceSubs}</div>
-                              <strong>当前的订阅:</strong><div class="url-compare">${currentSourceSubs}</div>
+                let message = `该定制后缀已被占用，但指向不同的订阅内容。<br/><br/>
+                              <strong>已存在的订阅:</strong><br/><div class="url-compare">${existingSourceSubs}</div><br/>
+                              <strong>当前的订阅:</strong><br/><div class="url-compare">${currentSourceSubs}</div><br/>
                               是否覆盖它？`;
 
                 self.$confirm(message, '短链接后缀冲突', {
