@@ -17,6 +17,18 @@
           </div>
           <el-container>
             <el-form :model="form" label-width="80px" label-position="left" style="width: 100%">
+
+              <!-- 提示信息移动到这里 -->
+              <el-form-item label-width="0px">
+                <el-alert
+                  title="如果订阅解析失败（如空白或403），请尝试开启下方高级功能中的 '启用 Cloudflare 代理'"
+                  type="warning"
+                  show-icon
+                  :closable="false"
+                  style="margin-bottom: 15px;">
+                </el-alert>
+              </el-form-item>
+
               <el-form-item label="订阅链接:">
                 <el-input v-model="form.sourceSubUrl" type="textarea" rows="3"
                   placeholder="支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔" />
@@ -32,18 +44,6 @@
                   <el-option v-for="(v, k) in options.customBackend" :key="k" :label="k" :value="v"></el-option>
                 </el-select>
               </el-form-item>
-
-              <!-- 新增提示信息 -->
-              <el-form-item label-width="0px">
-                <el-alert
-                  title="如果订阅解析失败（如空白或403），请尝试开启下方高级功能中的 '启用 Cloudflare 代理'"
-                  type="warning"
-                  show-icon
-                  :closable="false"
-                  style="margin-bottom: 15px; line-height: 1.5;">
-                </el-alert>
-              </el-form-item>
-
               <el-form-item label="短链选择:">
                 <el-select v-model="form.shortType" allow-create filterable placeholder="可输入其他可用短链API"
                   style="width: 100%">
@@ -1153,8 +1153,13 @@ export default {
                 const existingUrl = error.response.data?.existingUrl || '';
 
                 if (existingUrl === self.customSubUrl) {
+                  // 尝试构建短链，注意这里假设短链格式
+                  // 如果 API 返回了 link 最好，如果没有，只能尝试拼接
+                  // 但 409 响应里通常不带 link，所以这里可能需要优化
+                  // 既然是冲突，说明 slug 已知
                   const shortenerBaseUrl = self.form.shortType.replace("/short", "");
                   const existingShortLink = `${shortenerBaseUrl}/${currentSlug}`;
+
                   self.customShortSubUrl = existingShortLink;
                   self.$copyText(existingShortLink);
                   self.$message.success("后缀已存在，已自动使用现有短链接");
