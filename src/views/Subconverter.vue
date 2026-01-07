@@ -32,6 +32,18 @@
                   <el-option v-for="(v, k) in options.customBackend" :key="k" :label="k" :value="v"></el-option>
                 </el-select>
               </el-form-item>
+
+              <!-- 新增提示信息 -->
+              <el-form-item label-width="0px">
+                <el-alert
+                  title="如果订阅解析失败（如空白或403），请尝试开启下方高级功能中的 '启用 Cloudflare 代理'"
+                  type="warning"
+                  show-icon
+                  :closable="false"
+                  style="margin-bottom: 15px; line-height: 1.5;">
+                </el-alert>
+              </el-form-item>
+
               <el-form-item label="短链选择:">
                 <el-select v-model="form.shortType" allow-create filterable placeholder="可输入其他可用短链API"
                   style="width: 100%">
@@ -141,6 +153,9 @@
                                 <el-checkbox v-model="form.tpl.singbox.ipv6" label="Sing-Box支持IPV6"></el-checkbox>
                               </div>
                             </el-col>
+                            <el-col :span="12">
+                              <el-checkbox v-model="form.cfProxy" label="启用 Cloudflare 代理"></el-checkbox>
+                            </el-col>
                           </el-row>
                           <el-button slot="reference">更多选项</el-button>
                         </el-popover>
@@ -169,6 +184,9 @@
                     ref="copy-btn" icon="el-icon-document-copy">复制
                   </el-button>
                 </el-input>
+              </el-form-item>
+              <el-form-item label="定制后缀:">
+                <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 16.66%; min-width: 150px;"></el-input>
               </el-form-item>
               <el-form-item label-width="0px" style="margin-top: 40px; text-align: center">
                 <el-button style="width: 120px" type="danger" @click="makeUrl"
@@ -821,7 +839,8 @@ export default {
           singbox: {
             ipv6: false
           }
-        }
+        },
+        cfProxy: false // 新增：Cloudflare 代理开关
       },
       loading1: false,
       loading2: false,
@@ -977,6 +996,24 @@ export default {
           : this.form.customBackend;
       let sourceSub = this.form.sourceSubUrl;
       sourceSub = sourceSub.replace(/(\n|\r|\n\r)/g, "|");
+
+      // 处理 Cloudflare 代理
+      if (this.form.cfProxy) {
+        // 获取当前页面的 origin，例如 https://sub-wh.wh8.xx.kg
+        const currentOrigin = window.location.origin;
+        const proxyUrl = `${currentOrigin}/api/proxy?url=`;
+
+        // 将 sourceSub 中的每个链接都加上代理前缀
+        // 注意：这里假设 sourceSub 是用 | 分隔的
+        sourceSub = sourceSub.split('|').map(url => {
+          // 只代理 http/https 开头的链接，忽略已经是代理的或者非链接内容
+          if (url.startsWith('http') && !url.startsWith(proxyUrl)) {
+            return proxyUrl + encodeURIComponent(url);
+          }
+          return url;
+        }).join('|');
+      }
+
       this.customSubUrl =
         backend +
         "/sub?target=" +
@@ -1128,9 +1165,9 @@ export default {
                 const existingSourceSubs = self.parseCustomUrl(existingUrl);
                 const currentSourceSubs = self.parseCustomUrl(self.customSubUrl);
 
-                let message = `该定制后缀已被占用，但指向不同的订阅内容。<br/><br/>
-                              <strong>已存在的订阅:</strong><br/><div class="url-compare">${existingSourceSubs}</div><br/>
-                              <strong>当前的订阅:</strong><br/><div class="url-compare">${currentSourceSubs}</div><br/>
+                let message = `该定制后缀已被占用，但指向不同的订阅内容。<br/>
+                              <strong>已存在的订阅:</strong><div class="url-compare">${existingSourceSubs}</div>
+                              <strong>当前的订阅:</strong><div class="url-compare">${currentSourceSubs}</div>
                               是否覆盖它？`;
 
                 self.$confirm(message, '短链接后缀冲突', {
