@@ -853,6 +853,23 @@ export default {
       return configSupport.some(c => client.includes(c));
     }
   },
+  watch: {
+    'form.sourceSubUrl'() {
+      // 当订阅链接输入框内容发生变化时，清空相关的缓存
+      this.customSubUrl = '';
+      this.customShortSubUrl = '';
+    },
+    'form.clientType'() {
+      // 当客户端类型变化时，也应该清空缓存
+      this.customSubUrl = '';
+      this.customShortSubUrl = '';
+    },
+    'form.customBackend'() {
+      // 当后端地址变化时，也应该清空缓存
+      this.customSubUrl = '';
+      this.customShortSubUrl = '';
+    }
+  },
   created() {
     document.title = "在线订阅转换工具";
     this.isPC = this.$getOS().isPc;
@@ -1002,7 +1019,7 @@ export default {
             // 检测是否为 IP 地址形式的域名
             const isIpAddress = /^(\d+\.\d+\.\d+\.\d+)/.test(urlObj.hostname);
             
-            // 如果不是 IP 地址（即域名形式）且不是本地代理链接，则添加代理
+            // 如果是 IP 地址则不需要代理，如果是域名形式且不是本地代理链接，则添加代理
             if (!isIpAddress && !url.startsWith(proxyUrl)) {
               return proxyUrl + encodeURIComponent(url);
             }
@@ -1111,18 +1128,81 @@ export default {
         return "无效的长链接格式";
       }
     },
+    
+    parseCustomUrlWithoutProxy(longUrl) {
+      try {
+        const url = new URL(longUrl);
+        const params = new URLSearchParams(url.search);
+        const encodedSource = params.get('url');
+        if (encodedSource) {
+          const decodedSource = decodeURIComponent(encodedSource);
+          // 如果是代理 URL，需要提取原始 URL
+          let result = decodedSource.split('|').join('\n');
+          // 移除代理前缀，获取原始 URL
+          const proxyPrefix = window.location.origin + '/api/proxy?url=';
+          result = result.split('\n').map(part => {
+            if (part.startsWith(proxyPrefix)) {
+              // 解码并返回原始 URL
+              return decodeURIComponent(part.substring(proxyPrefix.length));
+            }
+            return part;
+          }).join('\n');
+          return result;
+        }
+        return "无法解析原始订阅";
+      } catch (e) {
+        return "无效的长链接格式";
+      }
+    },
     makeShortUrl() {
+      const self = this;
+      
+      // 如果定制订阅URL为空，先生成订阅链接
+      if (!self.customSubUrl || self.customSubUrl.trim() === '') {
+        // 先执行 makeUrl，然后再执行短链接生成
+        this.makeUrl();
+        // 然后延迟执行短链接生成
+        setTimeout(() => {
+          this.executeShortUrlGeneration();
+        }, 500); // 延迟 500 毫秒等待 makeUrl 完成
+        return;
+      }
+      
+      // 如果已有定制订阅URL，直接执行短链接生成
+      this.executeShortUrlGeneration();
+    },
+    
+    executeShortUrlGeneration() {
       const self = this;
       const slug = self.form.customSlug.trim();
 
       const shortenerRequest = (currentSlug, overwrite = false) => {
         self.loading1 = true;
 
+        // 创建一个函数来移除代理前缀，获取原始 URL
+        const removeProxyPrefix = (url) => {
+          const proxyPrefix = window.location.origin + '/api/proxy?url=';
+          if (url.startsWith(proxyPrefix)) {
+            return decodeURIComponent(url.substring(proxyPrefix.length));
+          }
+          return url;
+        };
+
+        // 提取原始 URL，去除代理前缀
+        let originalUrl = self.customSubUrl;
+        // 处理 | 分隔的多个 URL
+        if (originalUrl.includes('|')) {
+          const urls = originalUrl.split('|').map(u => removeProxyPrefix(u)).join('|');
+          originalUrl = urls;
+        } else {
+          originalUrl = removeProxyPrefix(originalUrl);
+        }
+
         if (self.form.shortType.includes("short.wh8.xx.kg")) {
           const createEndpoint = self.form.shortType; // 直接使用完整 URL
 
           let requestBody = {
-            url: self.customSubUrl,
+            url: self.customSubUrl, // 使用代理后的 URL，因为这是用户最终使用的链接
             overwrite: overwrite
           };
 
@@ -1166,12 +1246,13 @@ export default {
                   return;
                 }
 
-                const existingSourceSubs = self.parseCustomUrl(existingUrl);
-                const currentSourceSubs = self.parseCustomUrl(self.customSubUrl);
+                // 解析 URL 时，移除代理前缀以进行公平比较
+                const existingSourceSubsWithoutProxy = self.parseCustomUrlWithoutProxy(existingUrl);
+                const currentSourceSubsWithoutProxy = self.parseCustomUrlWithoutProxy(self.customSubUrl);
 
                 let message = `该定制后缀已被占用，但指向不同的订阅内容。<br/>
-                              <strong>已存在的订阅:</strong><div class="url-compare">${existingSourceSubs}</div>
-                              <strong>当前的订阅:</strong><div class="url-compare">${currentSourceSubs}</div>
+                              <strong>已存在的订阅:</strong><div class="url-compare">${existingSourceSubsWithoutProxy}</div>
+                              <strong>当前的订阅:</strong><div class="url-compare">${currentSourceSubsWithoutProxy}</div>
                               是否覆盖它？`;
 
                 self.$confirm(message, '短链接后缀冲突', {
@@ -1201,7 +1282,7 @@ export default {
         else {
           const duan = self.form.shortType;
           let data = new FormData();
-          data.append("longUrl", btoa(self.customSubUrl));
+          data.append("longUrl", btoa(self.customSubUrl)); // 使用代理后的 URL，因为这是用户最终使用的链接
           if (currentSlug) {
             data.append("shortKey", currentSlug);
           }
