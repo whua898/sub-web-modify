@@ -148,7 +148,7 @@
                   </el-collapse-item>
                 </el-collapse>
               </el-form-item>
-              <el-divider content-position="center">
+              <el-divider content-position="center" style="margin: 5px 0;">
                 <el-button type="zhuti" @click="change">
                   <i id="rijian" class="el-icon-sunny"></i>
                   <i id="yejian" class="el-icon-moon"></i>
