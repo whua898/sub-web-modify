@@ -1744,6 +1744,18 @@ export default {
 </script>
 
 <style>
+
+/* 调整 el-card 头部的高度 */
+.el-card__header {
+    /* Element UI 默认是 20px 20px。您可以减少垂直方向的 20px。 */
+    padding: 10px 10px !important; /* 上下内边距设为 10px */
+}
+
+/* 此外，如果您在暗黑模式下，el-card 头部边框也可能占用空间，可以微调它： */
+/* .dark-mode .el-card__header {
+    border-bottom: 1px solid #454545;
+} */
+
 .long-url-confirm-box {
   width: 800px !important;
   max-width: 90% !important;
