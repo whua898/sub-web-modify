@@ -188,6 +188,7 @@
                     :value="item">
                   </el-option>
                 </el-select>
+                <el-button type="primary" @click="reverseLookup" style="margin-left: 10px;">反查</el-button>
               </el-form-item>
               <el-form-item label-width="0px" style="margin-top: 5px; text-align: center">
                 <el-button style="width: 120px" type="danger" @click="makeUrl"
@@ -1420,6 +1421,43 @@ export default {
 
       shortenerRequest(slug);
     },
+    
+    reverseLookup() {
+      const slug = this.form.customSlug;
+      
+      if (!slug || slug.trim() === '') {
+        this.$message.error('请输入要反查的定制后缀');
+        return;
+      }
+      
+      // 从当前选择的短链服务构建完整的短链地址
+      const shortenerBaseUrl = this.form.shortType.replace('/short', '');
+      const shortLink = `${shortenerBaseUrl}/${slug}`;
+      
+      // 获取短链接对应的长链接
+      this.$axios.get(shortLink)
+        .then(res => {
+          if (res.status === 200 && res.data) {
+            // 解析长链接中的参数
+            const longUrl = res.data;
+            this.customShortSubUrl = shortLink;
+            this.customSubUrl = longUrl;
+            
+            // 解析原始订阅
+            const originalSub = this.parseCustomUrl(longUrl);
+            this.form.sourceSubUrl = originalSub;
+            
+            this.$message.success('反查成功，已填充到对应位置');
+          } else {
+            this.$message.error('反查失败，未找到对应的短链接');
+          }
+        })
+        .catch(error => {
+          console.error('反查失败:', error);
+          this.$message.error('反查失败，请检查后缀是否正确或短链服务是否可用');
+        });
+    },
+    
     confirmUploadConfig() {
       this.loading2 = true;
       let data = new FormData();
