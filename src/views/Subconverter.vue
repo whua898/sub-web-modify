@@ -188,7 +188,7 @@
                     :value="item">
                   </el-option>
                 </el-select>
-                <el-button type="primary" @click="reverseLookup" style="margin-left: 10px;">反查</el-button>
+                <el-button type="primary" @click="reverseLookup" :loading="loadingReverse" style="margin-left: 10px;">反查</el-button>
               </el-form-item>
               <el-form-item label-width="0px" style="margin-top: 5px; text-align: center">
                 <el-button style="width: 120px" type="danger" @click="makeUrl"
@@ -846,6 +846,7 @@ export default {
       loading1: false,
       loading2: false,
       loading3: false,
+      loadingReverse: false,
       customSubUrl: "",
       customShortSubUrl: "",
       customSlugHistory: [], // 存储历史定制后缀
@@ -1422,40 +1423,54 @@ export default {
       shortenerRequest(slug);
     },
     
-    reverseLookup() {
+    async reverseLookup() {
       const slug = this.form.customSlug;
       
       if (!slug || slug.trim() === '') {
         this.$message.error('请输入要反查的定制后缀');
         return;
       }
-      
+
+      this.loadingReverse = true;
+
       // 从当前选择的短链服务构建完整的短链地址
       const shortenerBaseUrl = this.form.shortType.replace('/short', '');
       const shortLink = `${shortenerBaseUrl}/${slug}`;
       
-      // 获取短链接对应的长链接
-      this.$axios.get(shortLink)
-        .then(res => {
-          if (res.status === 200 && res.data) {
-            // 解析长链接中的参数
-            const longUrl = res.data;
-            this.customShortSubUrl = shortLink;
-            this.customSubUrl = longUrl;
-            
-            // 解析原始订阅
-            const originalSub = this.parseCustomUrl(longUrl);
-            this.form.sourceSubUrl = originalSub;
-            
-            this.$message.success('反查成功，已填充到对应位置');
-          } else {
-            this.$message.error('反查失败，未找到对应的短链接');
-          }
-        })
-        .catch(error => {
-          console.error('反查失败:', error);
-          this.$message.error('反查失败，请检查后缀是否正确或短链服务是否可用');
+      try {
+        const res = await fetch(shortLink, {
+          method: "GET",
+          redirect: "follow",
         });
+
+        if (res.url && res.url !== shortLink) {
+          const longUrl = res.url;
+
+          // 1. 填充短链接
+          this.customShortSubUrl = shortLink;
+
+          // 2. 填充长链接
+          this.customSubUrl = longUrl;
+
+          // 3. 解析并填充所有参数（包括 sourceSubUrl）
+          try {
+            const urlObj = new URL(longUrl);
+            this.parseUrlParams(urlObj);
+            this.$message.success('反查成功，已填充到对应位置');
+          } catch (e) {
+            console.error('解析参数失败:', e);
+            this.$message.error('解析长链接参数失败');
+          }
+
+        } else {
+          this.$message.error('反查失败，未检测到重定向，可能是跨域限制或后缀无效');
+        }
+      } catch (error) {
+        console.error('反查失败:', error);
+        this.$message.error('反查失败，请检查后缀是否正确，或短链服务不支持跨域请求');
+      } finally {
+        this.loadingReverse = false;
+      }
     },
     
     confirmUploadConfig() {
@@ -1507,6 +1522,102 @@ export default {
         })();
       }
     },
+    parseUrlParams(url) {
+      this.form.customBackend = url.origin
+      let param = new URLSearchParams(url.search);
+      if (param.get("target")) {
+        let target = param.get("target");
+        if (target === 'surge' && param.get("ver")) {
+          // 类型为surge,有ver
+          this.form.clientType = target + "&ver=" + param.get("ver");
+        } else if (target === 'surge') {
+          //类型为surge,没有ver
+          this.form.clientType = target + "&ver=4"
+        } else {
+          //类型为其他
+          this.form.clientType = target;
+        }
+      }
+      if (param.get("url")) {
+        let source = param.get("url");
+        try {
+            // 尝试解码，应对可能的双重编码，或者保持与 parseCustomUrl 一致的行为
+            source = decodeURIComponent(source);
+        } catch(e) {
+            // 解码失败则使用原值
+        }
+        this.form.sourceSubUrl = source.split('|').join('\n');
+      }
+      if (param.get("insert")) {
+        this.form.insert = param.get("insert") === 'true';
+      }
+      if (param.get("config")) {
+        this.form.remoteConfig = param.get("config");
+      }
+      if (param.get("exclude")) {
+        this.form.excludeRemarks = param.get("exclude");
+      }
+      if (param.get("include")) {
+        this.form.includeRemarks = param.get("include");
+      }
+      if (param.get("filename")) {
+        this.form.filename = param.get("filename");
+      }
+      if (param.get("rename")) {
+        this.form.rename = param.get("rename");
+      }
+      if (param.get("interval")) {
+        this.form.interval = Math.ceil(param.get("interval") / 86400);
+      }
+      if (param.get("dev_id")) {
+        this.form.devid = param.get("dev_id");
+      }
+      if (param.get("append_type")) {
+        this.form.appendType = param.get("append_type") === 'true';
+      }
+      if (param.get("tls13")) {
+        this.form.tls13 = param.get("tls13");
+      }
+      if (param.get("xudp")) {
+        this.form.xudp = param.get("xudp") === 'true';
+      }
+      if (param.get("sort")) {
+        this.form.sort = param.get("sort") === 'true';
+      }
+      if (param.get("emoji")) {
+        this.form.emoji = param.get("emoji") === 'true';
+      }
+      if (param.get("list")) {
+        this.form.nodeList = param.get("list") === 'true';
+      }
+      if (param.get("udp")) {
+        this.form.udp = param.get("udp") === 'true';
+      }
+      if (param.get("tfo")) {
+        this.form.tfo = param.get("tfo") === 'true';
+      }
+      if (param.get("expand")) {
+        this.form.expand = param.get("expand") === 'true';
+      }
+      if (param.get("scv")) {
+        this.form.scv = param.get("scv") === 'true';
+      }
+      if (param.get("fdn")) {
+        this.form.fdn = param.get("fdn") === 'true';
+      }
+      if (param.get("surge.doh")) {
+        this.form.tpl.surge.doh = param.get("surge.doh") === 'true';
+      }
+      if (param.get("clash.doh")) {
+        this.form.tpl.clash.doh = param.get("clash.doh") === 'true';
+      }
+      if (param.get("new_name")) {
+        this.form.new_name = param.get("new_name") === 'true';
+      }
+      if (param.get("singbox.ipv6")) {
+        this.form.tpl.singbox.ipv6 = param.get("singbox.ipv6") === '1';
+      }
+    },
     confirmLoadConfig() {
       if (this.loadConfig.trim() === "" || !this.loadConfig.trim().includes("http")) {
         this.$message.error("待解析的订阅链接不合法");
@@ -1520,93 +1631,7 @@ export default {
           this.$message.error("请输入正确的订阅地址!");
           return;
         }
-        this.form.customBackend = url.origin
-        let param = new URLSearchParams(url.search);
-        if (param.get("target")) {
-          let target = param.get("target");
-          if (target === 'surge' && param.get("ver")) {
-            // 类型为surge,有ver
-            this.form.clientType = target + "&ver=" + param.get("ver");
-          } else if (target === 'surge') {
-            //类型为surge,没有ver
-            this.form.clientType = target + "&ver=4"
-          } else {
-            //类型为其他
-            this.form.clientType = target;
-          }
-        }
-        if (param.get("url")) {
-          this.form.sourceSubUrl = param.get("url");
-        }
-        if (param.get("insert")) {
-          this.form.insert = param.get("insert") === 'true';
-        }
-        if (param.get("config")) {
-          this.form.remoteConfig = param.get("config");
-        }
-        if (param.get("exclude")) {
-          this.form.excludeRemarks = param.get("exclude");
-        }
-        if (param.get("include")) {
-          this.form.includeRemarks = param.get("include");
-        }
-        if (param.get("filename")) {
-          this.form.filename = param.get("filename");
-        }
-        if (param.get("rename")) {
-          this.form.rename = param.get("rename");
-        }
-        if (param.get("interval")) {
-          this.form.interval = Math.ceil(param.get("interval") / 86400);
-        }
-        if (param.get("dev_id")) {
-          this.form.devid = param.get("dev_id");
-        }
-        if (param.get("append_type")) {
-          this.form.appendType = param.get("append_type") === 'true';
-        }
-        if (param.get("tls13")) {
-          this.form.tls13 = param.get("tls13");
-        }
-        if (param.get("xudp")) {
-          this.form.xudp = param.get("xudp") === 'true';
-        }
-        if (param.get("sort")) {
-          this.form.sort = param.get("sort") === 'true';
-        }
-        if (param.get("emoji")) {
-          this.form.emoji = param.get("emoji") === 'true';
-        }
-        if (param.get("list")) {
-          this.form.nodeList = param.get("list") === 'true';
-        }
-        if (param.get("udp")) {
-          this.form.udp = param.get("udp") === 'true';
-        }
-        if (param.get("tfo")) {
-          this.form.tfo = param.get("tfo") === 'true';
-        }
-        if (param.get("expand")) {
-          this.form.expand = param.get("expand") === 'true';
-        }
-        if (param.get("scv")) {
-          this.form.scv = param.get("scv") === 'true';
-        }
-        if (param.get("fdn")) {
-          this.form.fdn = param.get("fdn") === 'true';
-        }
-        if (param.get("surge.doh")) {
-          this.form.tpl.surge.doh = param.get("surge.doh") === 'true';
-        }
-        if (param.get("clash.doh")) {
-          this.form.tpl.clash.doh = param.get("clash.doh") === 'true';
-        }
-        if (param.get("new_name")) {
-          this.form.new_name = param.get("new_name") === 'true';
-        }
-        if (param.get("singbox.ipv6")) {
-          this.form.tpl.singbox.ipv6 = param.get("singbox.ipv6") === '1';
-        }
+        this.parseUrlParams(url);
         this.dialogLoadConfigVisible = false;
         this.$message.success("长/短链接已成功解析为订阅信息");
       })();
