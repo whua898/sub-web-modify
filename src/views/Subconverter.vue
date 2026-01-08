@@ -1434,7 +1434,10 @@ export default {
       this.loadingReverse = true;
 
       // 从当前选择的短链服务构建完整的短链地址
-      const shortenerBaseUrl = this.form.shortType.replace('/short', '');
+      let shortenerBaseUrl = this.form.shortType;
+      if (shortenerBaseUrl.endsWith('/short')) {
+        shortenerBaseUrl = shortenerBaseUrl.slice(0, -6);
+      }
       const shortLink = `${shortenerBaseUrl}/${slug}`;
       
       try {
@@ -1541,12 +1544,32 @@ export default {
       if (param.get("url")) {
         let source = param.get("url");
         try {
-            // 尝试解码，应对可能的双重编码，或者保持与 parseCustomUrl 一致的行为
+            // 尝试解码，应对可能的双重编码
             source = decodeURIComponent(source);
         } catch(e) {
             // 解码失败则使用原值
         }
-        this.form.sourceSubUrl = source.split('|').join('\n');
+
+        // 处理代理前缀
+        // 代理前缀通常是 /api/proxy?url=
+        // 我们需要移除它，并解码后面的内容
+        const proxyKeyword = '/api/proxy?url=';
+
+        source = source.split('|').map(u => {
+            const index = u.indexOf(proxyKeyword);
+            if (index !== -1) {
+                // 提取参数部分
+                let realUrl = u.substring(index + proxyKeyword.length);
+                // 尝试解码
+                try {
+                    realUrl = decodeURIComponent(realUrl);
+                } catch (e) {}
+                return realUrl;
+            }
+            return u;
+        }).join('\n');
+
+        this.form.sourceSubUrl = source;
       }
       if (param.get("insert")) {
         this.form.insert = param.get("insert") === 'true';
