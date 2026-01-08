@@ -17,9 +17,14 @@
           </div>
           <el-container>
             <el-form :model="form" label-width="80px" label-position="left" style="width: 100%">
-              <el-form-item label="订阅链接:">
-                <el-input v-model="form.sourceSubUrl" type="textarea" rows="3"
-                  placeholder="支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔" />
+              <div class="subscription-tip">支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔</div>
+              <el-form-item label="订阅链接:" class="subscription-link-row">
+                <el-input
+                    v-model="form.sourceSubUrl"
+                    type="textarea"
+                    :autosize="{ minRows: 4, maxRows: 5 }"
+                    placeholder=""
+                />
               </el-form-item>
               <el-form-item label="生成类型:">
                 <el-select v-model="form.clientType" style="width: 100%">
@@ -148,7 +153,6 @@
                   </el-collapse-item>
                 </el-collapse>
               </el-form-item>
-              <div style="margin-top: 30px"></div>
               <el-divider content-position="center">
                 <el-button type="zhuti" @click="change">
                   <i id="rijian" class="el-icon-sunny"></i>
@@ -164,7 +168,10 @@
                 </el-input>
               </el-form-item>
               <el-form-item label="订阅短链:">
-                <el-input class="copy-content" v-model="customShortSubUrl" placeholder="输入自定义短链接后缀，点击生成短链接可反复生成">
+                <el-input class="copy-content" v-model="customShortSubUrl" style="position: relative;">
+                  <div slot="suffix" style="color: #999; font-size: 12px; display: flex; align-items: center; height: 100%; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    输入自定义短链接后缀，点击生成短链接可反复生成
+                  </div>
                   <el-button slot="append" v-clipboard:copy="customShortSubUrl" v-clipboard:success="onCopy"
                     ref="copy-btn" icon="el-icon-document-copy">复制
                   </el-button>
@@ -172,10 +179,17 @@
                 </el-input>
               </el-form-item>
               <el-form-item label="定制后缀:">
-                <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 16.66%; min-width: 150px;"></el-input>
-                <el-button type="primary" @click="reverseLookup" style="margin-left: 10px;">反查</el-button>
+                <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 15%; min-width: 150px;"></el-input>
+                <el-select v-model="form.customSlug" placeholder="历史后缀" style="width: 12%; margin-left: 10px;">
+                  <el-option
+                    v-for="item in customSlugHistory"
+                    :key="item"
+                    :label="item"
+                    :value="item">
+                  </el-option>
+                </el-select>
               </el-form-item>
-              <el-form-item label-width="0px" style="margin-top: 40px; text-align: center">
+              <el-form-item label-width="0px" style="margin-top: 5px; text-align: center">
                 <el-button style="width: 120px" type="danger" @click="makeUrl"
                   :disabled="form.sourceSubUrl.length === 0 || btnBoolean">生成订阅链接
                 </el-button>
@@ -833,6 +847,7 @@ export default {
       loading3: false,
       customSubUrl: "",
       customShortSubUrl: "",
+      customSlugHistory: [], // 存储历史定制后缀
       dialogUploadConfigVisible: false,
       loadConfig: "",
       dialogLoadConfigVisible: false,
@@ -880,6 +895,8 @@ export default {
     this.form.clientType = "clash";
     this.getBackendVersion();
     this.anhei();
+    // 加载历史记录
+    this.loadCustomSlugHistory();
     let lightMedia = window.matchMedia('(prefers-color-scheme: light)');
     let darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
     let callback = (e) => {
@@ -956,6 +973,40 @@ export default {
         window.open(url, '_blank');
       }
     },
+    loadCustomSlugHistory() {
+      try {
+        const history = localStorage.getItem('customSlugHistory');
+        if (history) {
+          this.customSlugHistory = JSON.parse(history);
+        } else {
+          this.customSlugHistory = [];
+        }
+      } catch (e) {
+        console.error('加载历史记录失败:', e);
+        this.customSlugHistory = [];
+      }
+    },
+    saveCustomSlugToHistory(slug) {
+      if (!slug || typeof slug !== 'string') return;
+      
+      // 移除重复项
+      this.customSlugHistory = this.customSlugHistory.filter(item => item !== slug);
+      
+      // 添加到开头
+      this.customSlugHistory.unshift(slug);
+      
+      // 限制历史记录数量为100条
+      if (this.customSlugHistory.length > 100) {
+        this.customSlugHistory = this.customSlugHistory.slice(0, 100);
+      }
+      
+      // 保存到本地存储
+      try {
+        localStorage.setItem('customSlugHistory', JSON.stringify(this.customSlugHistory));
+      } catch (e) {
+        console.error('保存历史记录失败:', e);
+      }
+    },
     goToProject() {
       window.open(project);
     },
@@ -1005,27 +1056,66 @@ export default {
       let sourceSub = this.form.sourceSubUrl;
       sourceSub = sourceSub.replace(/(\n|\r|\n\r)/g, "|");
 
-      // 智能 Cloudflare 代理：自动检测 IP 地址形式的链接并应用代理
+      // 智能代理策略：自动检测需要代理的链接并应用代理
       // 获取当前页面的 origin，例如 https://sub-wh.wh8.xx.kg
       const currentOrigin = window.location.origin;
       const proxyUrl = `${currentOrigin}/api/proxy?url=`;
 
       // 将 sourceSub 中的每个链接都检查是否需要代理
-      // 域名形式的链接（如 HF）需要代理，IP 地址形式的链接（如 GCP）不需要
+      // 主要针对可能被 Cloudflare 等 WAF 阻挡的域名，IP 地址形式的链接可以直接访问
       sourceSub = sourceSub.split('|').map(url => {
         // 只处理 http/https 链接
         if (url.startsWith('http')) {
           try {
             const urlObj = new URL(url);
             // 检测是否为 IP 地址形式的域名
-            const isIpAddress = /^(\d+\.\d+\.\d+\.\d+)/.test(urlObj.hostname);
+            const isIpAddress = /^([0-9]{1,3}\.){3}[0-9]{1,3}$/.test(urlObj.hostname);
             
-            // 如果是 IP 地址则不需要代理，如果是域名形式且不是本地代理链接，则添加代理
-            if (!isIpAddress && !url.startsWith(proxyUrl)) {
+            // 检查是否为私有 IP 地址段或本地地址
+            const parts = urlObj.hostname.split('.');
+            const isPrivateIP = isIpAddress && (
+              parts[0] === '10' ||
+              parts[0] === '172' && parseInt(parts[1]) >= 16 && parseInt(parts[1]) <= 31 ||
+              parts[0] === '192' && parts[1] === '168' ||
+              urlObj.hostname === 'localhost' ||
+              urlObj.hostname.startsWith('127.') ||
+              urlObj.hostname.startsWith('internal.')
+            );
+            
+            // 检查是否为无需代理的常见域名（如 hf.space、GitHub 等可以直接访问的域名）
+            const isKnownDirectDomain = urlObj.hostname.endsWith('.hf.space') ||
+                                      urlObj.hostname.endsWith('.github.com') ||
+                                      urlObj.hostname.endsWith('.github.io') ||
+                                      urlObj.hostname.includes('raw.githubusercontent.com') ||
+                                      urlObj.hostname.includes('jsdelivr.net');
+            
+            // 检查是否为已知的第三方托管平台域名（这些平台使用CDN/反向代理服务）
+            const likelyUsesCdn = urlObj.hostname.includes('pages.dev') ||
+                                urlObj.hostname.includes('vercel.app') ||
+                                urlObj.hostname.includes('workers.dev') ||
+                                urlObj.hostname.includes('trycloudflare.com') ||
+                                urlObj.hostname.includes('netlify.app') ||
+                                urlObj.hostname.includes('firebaseapp.com');
+            
+            // 综合判断：如果已知可以直接访问，则不添加代理；如果是已知使用CDN的第三方平台或自定义域名，则添加代理
+            if (isKnownDirectDomain) {
+              // 已知可以直接访问的域名，不添加代理
+              return url;
+            } else if (likelyUsesCdn) {
+              // 已知使用CDN的第三方平台，添加代理
+              return proxyUrl + encodeURIComponent(url);
+            } else if (!isIpAddress && !isPrivateIP && !url.startsWith(proxyUrl)) {
+              // 对于自定义域名，目前仍使用代理，因为无法在发起请求前判断是否使用Cloudflare
+              // 理想情况下，应检查域名是否解析到Cloudflare IP范围或检查HTTP响应头
+              // 但在前端JavaScript中无法直接进行DNS查询，也无法预先知道响应头
               return proxyUrl + encodeURIComponent(url);
             }
           } catch (e) {
             console.error('URL 解析错误:', e);
+            // 解析失败时，仍然尝试代理访问
+            if (!url.startsWith(proxyUrl)) {
+              return proxyUrl + encodeURIComponent(url);
+            }
           }
         }
         return url;
@@ -1173,48 +1263,9 @@ export default {
       this.executeShortUrlGeneration();
     },
     
-    reverseLookup(slug) {
-      if (!slug || slug.trim() === '') {
-        this.$message.error('请输入要反查的定制后缀');
-        return;
-      }
-      
-      const shortenerBaseUrl = this.form.shortType.replace('/short', '');
-      const shortLink = `${shortenerBaseUrl}/${slug}`;
-      
-      // 获取短链接对应的长链接
-      this.$axios.get(shortLink)
-        .then(res => {
-          if (res.status === 200 && res.data) {
-            // 解析长链接中的参数
-            const longUrl = res.data;
-            this.customShortSubUrl = shortLink;
-            this.customSubUrl = longUrl;
-            
-            // 解析原始订阅
-            const originalSub = this.parseCustomUrl(longUrl);
-            this.form.sourceSubUrl = originalSub;
-            
-            this.$message.success('反查成功，已填充到对应位置');
-          } else {
-            this.$message.error('反查失败，未找到对应的短链接');
-          }
-        })
-        .catch(error => {
-          console.error('反查失败:', error);
-          this.$message.error('反查失败，请检查后缀是否正确或短链服务是否可用');
-        });
-    },
-    
     executeShortUrlGeneration() {
       const self = this;
       const slug = self.form.customSlug.trim();
-
-      // 反查功能
-      if (slug && !self.loading1) {
-        self.reverseLookup(slug);
-        return;
-      }
 
       const shortenerRequest = (currentSlug, overwrite = false) => {
         self.loading1 = true;
@@ -1242,12 +1293,12 @@ export default {
           const createEndpoint = self.form.shortType; // 直接使用完整 URL
 
           let requestBody = {
-            url: self.customSubUrl, // 使用代理后的 URL，因为这是用户最终使用的链接
-            overwrite: overwrite
+            "url": self.customSubUrl, // 使用代理后的 URL，因为这是用户最终使用的链接
+            "overwrite": overwrite
           };
 
           if (currentSlug) {
-            requestBody.slug = currentSlug;
+            requestBody["slug"] = currentSlug;
           }
 
           self.$axios
@@ -1255,14 +1306,20 @@ export default {
               headers: { "Content-Type": "application/json" }
             })
             .then(res => {
-              if (res.data && res.data.link) { // 兼容你的 API 返回 link 字段
-                self.customShortSubUrl = res.data.link;
-                self.$copyText(res.data.link);
+              if (res.data && res.data.Code === 1 && (res.data.ShortUrl || res.data.link)) { // 符合 short.wh8.xx.kg API 格式，支持 ShortUrl 或 link 字段
+                // 优先使用 link 字段，如果不存在则使用 ShortUrl 字段
+                const shortUrl = res.data.link || res.data.ShortUrl;
+                self.customShortSubUrl = shortUrl;
+                self.$copyText(shortUrl);
                 self.$message.success("短链接已复制到剪贴板");
-              } else if (res.data.Code === 1 && res.data.ShortUrl) { // 兼容 v1.mk 格式
-                 self.customShortSubUrl = res.data.ShortUrl;
-                 self.$copyText(res.data.ShortUrl);
-                 self.$message.success("短链接已复制到剪贴板");
+                // 仅当用户输入了自定义后缀时才保存到历史记录
+                if (currentSlug) {
+                  self.saveCustomSlugToHistory(currentSlug);
+                }
+              } else if (res.data && res.data.Code === 0 && res.data.Message) {
+                // API 返回错误信息
+                self.$message.error("短链接生成失败：" + res.data.Message);
+                self.loading1 = false;
               } else {
                 throw new Error("API返回格式不正确或无链接");
               }
@@ -1283,6 +1340,10 @@ export default {
                   self.$copyText(existingShortLink);
                   self.$message.success("后缀已存在，已自动使用现有短链接");
                   self.loading1 = false;
+                  // 仅当用户输入了自定义后缀时才保存到历史记录
+                  if (currentSlug) {
+                    self.saveCustomSlugToHistory(currentSlug);
+                  }
                   return;
                 }
 
@@ -1335,6 +1396,10 @@ export default {
                 self.customShortSubUrl = res.data.ShortUrl;
                 self.$copyText(res.data.ShortUrl);
                 self.$message.success("短链接已复制到剪贴板");
+                // 仅当用户输入了自定义后缀时才保存到历史记录
+                if (currentSlug) {
+                  self.saveCustomSlugToHistory(currentSlug);
+                }
               } else {
                 if (currentSlug) {
                   self.$message.error("自定义后缀 '" + currentSlug + "' 已被占用，请尝试其他后缀");
@@ -1584,6 +1649,7 @@ export default {
   }
 };
 </script>
+
 <style>
 .long-url-confirm-box {
   width: 800px !important;
@@ -1592,8 +1658,8 @@ export default {
 .long-url-confirm-box .el-message-box__content {
   white-space: pre-wrap;
   word-break: break-all;
-  max-height: 500px; /* 增加最大高度 */
-  overflow-y: auto; /* 允许滚动 */
+  max-height: 500px;
+  overflow-y: auto;
 }
 .url-compare {
   background-color: #f5f5f5;
@@ -1606,6 +1672,7 @@ export default {
   overflow-y: auto;
   border: 1px solid #eee;
 }
+/* 保持现有的暗色模式样式 */
 .dark-mode .url-compare {
   background-color: #2a2a2a;
   border-color: #444;
@@ -1614,7 +1681,46 @@ export default {
   text-decoration: none;
 }
 .link-actions {
-  margin-top: 5px;
+  margin-top: 2px;
   text-align: right;
 }
+
+/* 覆盖 Element UI 默认的表单项间距 (保持您想要的小间距) */
+.el-form-item--small,
+.el-form-item--mini {
+    margin-bottom: 1px !important;
+}
+
+.el-form-item {
+    margin-bottom: 2px !important;
+}
+
+/* ================================================= */
+/* 订阅链接特殊布局样式：提示信息单独一行，紧贴输入框 */
+/* ================================================= */
+
+/* 1. 样式化提示信息，使其从标签位置开始对齐，并且消除底边距 */
+.subscription-tip {
+    font-size: 12px;
+    color: #999;
+    /* 核心：将提示信息向右推 80px (您的 label-width) + 10px (Element UI默认的padding) */
+    margin-left: 90px;
+    /* 消除底部边距，实现紧贴 */
+    margin-bottom: 0px;
+    /* 确保文本在一行内显示 */
+    white-space: nowrap;
+}
+
+/* 2. 移除下面 el-form-item 顶部的多余空间 */
+.subscription-link-row {
+    /* 核心：移除顶部的间距，紧贴上方的提示信息 */
+    margin-top: 0 !important;
+    /* 保持底部间距为您需要的 5px */
+    margin-bottom: 2px !important;
+}
+
+/* 3. （可选）如果标签没有和输入框对齐，可以取消这部分注释进行微调： */
+/* .subscription-link-row .el-form-item__label {
+    line-height: 20px !important;
+} */
 </style>
