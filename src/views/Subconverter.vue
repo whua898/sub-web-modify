@@ -18,9 +18,7 @@
           <el-container>
             <el-form :model="form" label-width="80px" label-position="left" style="width: 100%">
               <el-form-item label="订阅链接:">
-                <!-- 恢复到正确的结构，提示信息在内容区内，自动与输入框对齐 -->
-                <div style="font-size: 12px; color: #999; margin-bottom: 2px;">支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔</div>
-                <el-input v-model="form.sourceSubUrl" type="textarea" rows="3"
+               <el-input v-model="form.sourceSubUrl" type="textarea" rows="3"
                   placeholder="" />
               </el-form-item>
               <el-form-item label="生成类型:">
