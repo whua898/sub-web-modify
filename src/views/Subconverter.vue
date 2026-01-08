@@ -18,8 +18,9 @@
           <el-container>
             <el-form :model="form" label-width="80px" label-position="left" style="width: 100%">
               <el-form-item label="订阅链接:">
+                <div style="font-size: 12px; color: #999; margin-bottom: 2px;">支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔</div>
                 <el-input v-model="form.sourceSubUrl" type="textarea" rows="3"
-                  placeholder="支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔" />
+                  placeholder="" />
               </el-form-item>
               <el-form-item label="生成类型:">
                 <el-select v-model="form.clientType" style="width: 100%">
@@ -185,7 +186,7 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label-width="0px" style="margin-top: 40px; text-align: center">
+              <el-form-item label-width="0px" style="margin-top: 5px; text-align: center">
                 <el-button style="width: 120px" type="danger" @click="makeUrl"
                   :disabled="form.sourceSubUrl.length === 0 || btnBoolean">生成订阅链接
                 </el-button>
