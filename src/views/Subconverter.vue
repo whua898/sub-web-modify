@@ -13,7 +13,7 @@
             <svg-icon class="youguan" icon-class="youtube" style="float:right;margin-left:10px" @click="gotoYouTuBe" />
             <svg-icon class="channel" icon-class="telegram" style="float:right;margin-left: 10px"
               @click="gotoTgChannel" />
-            <div style="text-align:center;font-size:22px">订 阅 转 换</div>
+            <div style="text-align:center;font-size:20px">订 阅 转 换</div>
           </div>
           <el-container>
             <el-form :model="form" label-width="80px" label-position="left" style="width: 100%">
@@ -1748,7 +1748,7 @@ export default {
 /* 调整 el-card 头部的高度 */
 .el-card__header {
     /* Element UI 默认是 20px 20px。您可以减少垂直方向的 20px。 */
-    padding: 5px 5px !important; /* 上下内边距设为 10px */
+    padding: 5px 20px !important; /* 上下内边距设为 10px */
 }
 
 /* 此外，如果您在暗黑模式下，el-card 头部边框也可能占用空间，可以微调它： */
