@@ -1681,18 +1681,18 @@ export default {
   text-decoration: none;
 }
 .link-actions {
-  margin-top: 5px;
+  margin-top: 2px;
   text-align: right;
 }
 
 /* 覆盖 Element UI 默认的表单项间距 (保持您想要的小间距) */
 .el-form-item--small,
 .el-form-item--mini {
-    margin-bottom: 5px !important;
+    margin-bottom: 1px !important;
 }
 
 .el-form-item {
-    margin-bottom: 5px !important;
+    margin-bottom: 2px !important;
 }
 
 /* ================================================= */
@@ -1716,7 +1716,7 @@ export default {
     /* 核心：移除顶部的间距，紧贴上方的提示信息 */
     margin-top: 0 !important;
     /* 保持底部间距为您需要的 5px */
-    margin-bottom: 5px !important;
+    margin-bottom: 2px !important;
 }
 
 /* 3. （可选）如果标签没有和输入框对齐，可以取消这部分注释进行微调： */
