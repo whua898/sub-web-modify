@@ -17,8 +17,9 @@
           </div>
           <el-container>
             <el-form :model="form" label-width="80px" label-position="left" style="width: 100%">
-              <el-form-item label="订阅链接:">
-               <el-input v-model="form.sourceSubUrl" type="textarea" rows="3"
+              <div class="subscription-tip">支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔</div>
+              <el-form-item label="订阅链接:" class="subscription-link-row">
+                <el-input v-model="form.sourceSubUrl" type="textarea" rows="3"
                   placeholder="" />
               </el-form-item>
               <el-form-item label="生成类型:">
@@ -1645,6 +1646,7 @@ export default {
   }
 };
 </script>
+
 <style>
 .long-url-confirm-box {
   width: 800px !important;
@@ -1667,6 +1669,7 @@ export default {
   overflow-y: auto;
   border: 1px solid #eee;
 }
+/* 保持现有的暗色模式样式 */
 .dark-mode .url-compare {
   background-color: #2a2a2a;
   border-color: #444;
@@ -1688,4 +1691,33 @@ export default {
 .el-form-item {
     margin-bottom: 5px !important;
 }
+
+/* ================================================= */
+/* 订阅链接特殊布局样式：提示信息单独一行，紧贴输入框 */
+/* ================================================= */
+
+/* 1. 样式化提示信息，使其从标签位置开始对齐，并且消除底边距 */
+.subscription-tip {
+    font-size: 12px;
+    color: #999;
+    /* 核心：将提示信息向右推 80px (您的 label-width) + 10px (Element UI默认的padding) */
+    margin-left: 90px;
+    /* 消除底部边距，实现紧贴 */
+    margin-bottom: 0px;
+    /* 确保文本在一行内显示 */
+    white-space: nowrap;
+}
+
+/* 2. 移除下面 el-form-item 顶部的多余空间 */
+.subscription-link-row {
+    /* 核心：移除顶部的间距，紧贴上方的提示信息 */
+    margin-top: 0 !important;
+    /* 保持底部间距为您需要的 5px */
+    margin-bottom: 5px !important;
+}
+
+/* 3. （可选）如果标签没有和输入框对齐，可以取消这部分注释进行微调： */
+/* .subscription-link-row .el-form-item__label {
+    line-height: 20px !important;
+} */
 </style>
