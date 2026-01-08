@@ -1453,21 +1453,25 @@ export default {
             const longUrl = response.data.LongUrl;
             const shortLink = `${shortenerBaseUrl}/${slug}`;
 
-            // 填充数据
-            this.customShortSubUrl = shortLink;
-            this.customSubUrl = longUrl;
-
-            // 解析参数
+            // 解析参数，这会触发 watch 清空 customSubUrl 和 customShortSubUrl
             try {
                 const urlObj = new URL(longUrl);
                 this.parseUrlParams(urlObj);
-                this.$message.success('反查成功，已填充到对应位置');
             } catch (e) {
                 console.error('解析长链接失败:', e);
                 this.$message.warning('反查成功，但解析长链接参数失败');
                 // 即使解析失败，至少把长链接填进去
                 this.form.sourceSubUrl = longUrl;
             }
+
+            // 在解析完成后，重新填充长/短链接
+            // 使用 $nextTick 确保在 watch 执行之后再赋值
+            this.$nextTick(() => {
+                this.customShortSubUrl = shortLink;
+                this.customSubUrl = longUrl;
+                this.$message.success('反查成功，已填充到对应位置');
+            });
+
         } else {
             this.$message.error('反查失败：' + (response.data.Message || '未找到该后缀对应的链接'));
         }
