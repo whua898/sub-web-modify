@@ -164,7 +164,10 @@
                 </el-input>
               </el-form-item>
               <el-form-item label="订阅短链:">
-                <el-input class="copy-content" v-model="customShortSubUrl" placeholder="输入自定义短链接后缀，点击生成短链接可反复生成">
+                <el-input class="copy-content" v-model="customShortSubUrl" style="position: relative;">
+                  <div slot="suffix" style="margin-right: 10px; color: #999; font-size: 12px; display: flex; align-items: center; height: 100%; pointer-events: none; position: absolute; right: 0; z-index: 1;">
+                    输入自定义短链接后缀，点击生成短链接可反复生成
+                  </div>
                   <el-button slot="append" v-clipboard:copy="customShortSubUrl" v-clipboard:success="onCopy"
                     ref="copy-btn" icon="el-icon-document-copy">复制
                   </el-button>
