@@ -22,7 +22,7 @@
                 <el-input
                     v-model="form.sourceSubUrl"
                     type="textarea"
-                    :autosize="{ minRows: 1, maxRows: 5 }"
+                    :autosize="{ minRows: 4, maxRows: 5 }"
                     placeholder=""
                 />
               </el-form-item>
