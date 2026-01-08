@@ -1453,7 +1453,7 @@ export default {
 </script>
 <style>
 .el-form-item {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 .long-url-confirm-box {
   width: 800px !important;
