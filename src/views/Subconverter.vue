@@ -1672,6 +1672,10 @@ export default {
   background-color: #2a2a2a;
   border-color: #444;
 }
+.dark-mode .url-compare {
+  background-color: #2a2a2a;
+  border-color: #444;
+}
 .link-prepend {
   text-decoration: none;
 }
@@ -1690,5 +1694,12 @@ export default {
 /* 针对默认尺寸的表单项 */
 .el-form-item {
     margin-bottom: 14px !important; /* 将 22px 减小到 14px */
+}
+
+/* 确保字体大小不受影响 */
+.el-form-item__label,
+.el-input__inner,
+.el-select .el-input__inner {
+  font-size: inherit !important;
 }
 </style>
