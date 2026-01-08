@@ -19,8 +19,12 @@
             <el-form :model="form" label-width="80px" label-position="left" style="width: 100%">
               <div class="subscription-tip">支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔</div>
               <el-form-item label="订阅链接:" class="subscription-link-row">
-                <el-input v-model="form.sourceSubUrl" type="textarea" rows="3"
-                  placeholder="" />
+                <el-input
+                    v-model="form.sourceSubUrl"
+                    type="textarea"
+                    :autosize="{ minRows: 1, maxRows: 5 }"
+                    placeholder=""
+                />
               </el-form-item>
               <el-form-item label="生成类型:">
                 <el-select v-model="form.clientType" style="width: 100%">
