@@ -18,8 +18,9 @@
           <el-container>
             <el-form :model="form" label-width="80px" label-position="left" style="width: 100%">
               <el-form-item label="订阅链接:">
+                <div style="font-size: 12px; color: #999; margin-bottom: 2px;">支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔</div>
                 <el-input v-model="form.sourceSubUrl" type="textarea" rows="3"
-                  placeholder="支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔" />
+                  placeholder="" />
               </el-form-item>
               <el-form-item label="生成类型:">
                 <el-select v-model="form.clientType" style="width: 100%">
@@ -137,13 +138,9 @@
                           </el-row>
                           <el-row :gutter="10">
                             <el-col :span="12">
-                              <div style="margin-left: 35%">
-                                <el-checkbox v-model="form.tpl.singbox.ipv6" label="Sing-Box支持IPV6"></el-checkbox>
-                              </div>
+                              <el-checkbox v-model="form.tpl.singbox.ipv6" label="Sing-Box支持IPV6"></el-checkbox>
                             </el-col>
-                            <el-col :span="12">
-                              <el-checkbox v-model="form.cfProxy" label="启用 Cloudflare 代理"></el-checkbox>
-                            </el-col>
+
                           </el-row>
                           <el-button slot="reference">更多选项</el-button>
                         </el-popover>
@@ -164,22 +161,32 @@
                   <el-button slot="append" v-clipboard:copy="customSubUrl" v-clipboard:success="onCopy" ref="copy-btn"
                     icon="el-icon-document-copy">复制
                   </el-button>
+                  <el-button slot="prepend" @click="openLink(customSubUrl)" icon="el-icon-link" v-if="customSubUrl">访问</el-button>
                 </el-input>
               </el-form-item>
               <el-form-item label="订阅短链:">
-                <el-input class="copy-content" v-model="customShortSubUrl" placeholder="输入自定义短链接后缀，点击生成短链接可反复生成">
+                <el-input class="copy-content" v-model="customShortSubUrl" style="position: relative;">
+                  <div slot="suffix" style="color: #999; font-size: 12px; display: flex; align-items: center; height: 100%; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    输入自定义短链接后缀，点击生成短链接可反复生成
+                  </div>
                   <el-button slot="append" v-clipboard:copy="customShortSubUrl" v-clipboard:success="onCopy"
                     ref="copy-btn" icon="el-icon-document-copy">复制
                   </el-button>
+                  <el-button slot="prepend" @click="openLink(customShortSubUrl)" icon="el-icon-link" v-if="customShortSubUrl">访问</el-button>
                 </el-input>
               </el-form-item>
               <el-form-item label="定制后缀:">
-                <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 16.66%; min-width: 150px;"></el-input>
-                <span style="margin-left: 10px; color: #909399; font-size: 14px;">
-                  <i class="el-icon-info"></i> 解析失败(空白/403)? 尝试开启下方高级功能中的 '启用 Cloudflare 代理'
-                </span>
+                <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 15%; min-width: 150px;"></el-input>
+                <el-select v-model="form.customSlug" placeholder="历史后缀" style="width: 12%; margin-left: 10px;">
+                  <el-option
+                    v-for="item in customSlugHistory"
+                    :key="item"
+                    :label="item"
+                    :value="item">
+                  </el-option>
+                </el-select>
               </el-form-item>
-              <el-form-item label-width="0px" style="margin-top: 40px; text-align: center">
+              <el-form-item label-width="0px" style="margin-top: 5px; text-align: center">
                 <el-button style="width: 120px" type="danger" @click="makeUrl"
                   :disabled="form.sourceSubUrl.length === 0 || btnBoolean">生成订阅链接
                 </el-button>
@@ -830,14 +837,14 @@ export default {
           singbox: {
             ipv6: false
           }
-        },
-        cfProxy: false // 新增：Cloudflare 代理开关
+        }
       },
       loading1: false,
       loading2: false,
       loading3: false,
       customSubUrl: "",
       customShortSubUrl: "",
+      customSlugHistory: [], // 存储历史定制后缀
       dialogUploadConfigVisible: false,
       loadConfig: "",
       dialogLoadConfigVisible: false,
@@ -859,6 +866,23 @@ export default {
       return configSupport.some(c => client.includes(c));
     }
   },
+  watch: {
+    'form.sourceSubUrl'() {
+      // 当订阅链接输入框内容发生变化时，清空相关的缓存
+      this.customSubUrl = '';
+      this.customShortSubUrl = '';
+    },
+    'form.clientType'() {
+      // 当客户端类型变化时，也应该清空缓存
+      this.customSubUrl = '';
+      this.customShortSubUrl = '';
+    },
+    'form.customBackend'() {
+      // 当后端地址变化时，也应该清空缓存
+      this.customSubUrl = '';
+      this.customShortSubUrl = '';
+    }
+  },
   created() {
     document.title = "在线订阅转换工具";
     this.isPC = this.$getOS().isPc;
@@ -868,6 +892,8 @@ export default {
     this.form.clientType = "clash";
     this.getBackendVersion();
     this.anhei();
+    // 加载历史记录
+    this.loadCustomSlugHistory();
     let lightMedia = window.matchMedia('(prefers-color-scheme: light)');
     let darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
     let callback = (e) => {
@@ -939,6 +965,45 @@ export default {
     onCopy() {
       this.$message.success("已复制");
     },
+    openLink(url) {
+      if (url) {
+        window.open(url, '_blank');
+      }
+    },
+    loadCustomSlugHistory() {
+      try {
+        const history = localStorage.getItem('customSlugHistory');
+        if (history) {
+          this.customSlugHistory = JSON.parse(history);
+        } else {
+          this.customSlugHistory = [];
+        }
+      } catch (e) {
+        console.error('加载历史记录失败:', e);
+        this.customSlugHistory = [];
+      }
+    },
+    saveCustomSlugToHistory(slug) {
+      if (!slug || typeof slug !== 'string') return;
+      
+      // 移除重复项
+      this.customSlugHistory = this.customSlugHistory.filter(item => item !== slug);
+      
+      // 添加到开头
+      this.customSlugHistory.unshift(slug);
+      
+      // 限制历史记录数量为100条
+      if (this.customSlugHistory.length > 100) {
+        this.customSlugHistory = this.customSlugHistory.slice(0, 100);
+      }
+      
+      // 保存到本地存储
+      try {
+        localStorage.setItem('customSlugHistory', JSON.stringify(this.customSlugHistory));
+      } catch (e) {
+        console.error('保存历史记录失败:', e);
+      }
+    },
     goToProject() {
       window.open(project);
     },
@@ -988,22 +1053,70 @@ export default {
       let sourceSub = this.form.sourceSubUrl;
       sourceSub = sourceSub.replace(/(\n|\r|\n\r)/g, "|");
 
-      // 处理 Cloudflare 代理
-      if (this.form.cfProxy) {
-        // 获取当前页面的 origin，例如 https://sub-wh.wh8.xx.kg
-        const currentOrigin = window.location.origin;
-        const proxyUrl = `${currentOrigin}/api/proxy?url=`;
+      // 智能代理策略：自动检测需要代理的链接并应用代理
+      // 获取当前页面的 origin，例如 https://sub-wh.wh8.xx.kg
+      const currentOrigin = window.location.origin;
+      const proxyUrl = `${currentOrigin}/api/proxy?url=`;
 
-        // 将 sourceSub 中的每个链接都加上代理前缀
-        // 注意：这里假设 sourceSub 是用 | 分隔的
-        sourceSub = sourceSub.split('|').map(url => {
-          // 只代理 http/https 开头的链接，忽略已经是代理的或者非链接内容
-          if (url.startsWith('http') && !url.startsWith(proxyUrl)) {
-            return proxyUrl + encodeURIComponent(url);
+      // 将 sourceSub 中的每个链接都检查是否需要代理
+      // 主要针对可能被 Cloudflare 等 WAF 阻挡的域名，IP 地址形式的链接可以直接访问
+      sourceSub = sourceSub.split('|').map(url => {
+        // 只处理 http/https 链接
+        if (url.startsWith('http')) {
+          try {
+            const urlObj = new URL(url);
+            // 检测是否为 IP 地址形式的域名
+            const isIpAddress = /^([0-9]{1,3}\.){3}[0-9]{1,3}$/.test(urlObj.hostname);
+            
+            // 检查是否为私有 IP 地址段或本地地址
+            const parts = urlObj.hostname.split('.');
+            const isPrivateIP = isIpAddress && (
+              parts[0] === '10' ||
+              parts[0] === '172' && parseInt(parts[1]) >= 16 && parseInt(parts[1]) <= 31 ||
+              parts[0] === '192' && parts[1] === '168' ||
+              urlObj.hostname === 'localhost' ||
+              urlObj.hostname.startsWith('127.') ||
+              urlObj.hostname.startsWith('internal.')
+            );
+            
+            // 检查是否为无需代理的常见域名（如 hf.space、GitHub 等可以直接访问的域名）
+            const isKnownDirectDomain = urlObj.hostname.endsWith('.hf.space') ||
+                                      urlObj.hostname.endsWith('.github.com') ||
+                                      urlObj.hostname.endsWith('.github.io') ||
+                                      urlObj.hostname.includes('raw.githubusercontent.com') ||
+                                      urlObj.hostname.includes('jsdelivr.net');
+            
+            // 检查是否为已知的第三方托管平台域名（这些平台使用CDN/反向代理服务）
+            const likelyUsesCdn = urlObj.hostname.includes('pages.dev') ||
+                                urlObj.hostname.includes('vercel.app') ||
+                                urlObj.hostname.includes('workers.dev') ||
+                                urlObj.hostname.includes('trycloudflare.com') ||
+                                urlObj.hostname.includes('netlify.app') ||
+                                urlObj.hostname.includes('firebaseapp.com');
+            
+            // 综合判断：如果已知可以直接访问，则不添加代理；如果是已知使用CDN的第三方平台或自定义域名，则添加代理
+            if (isKnownDirectDomain) {
+              // 已知可以直接访问的域名，不添加代理
+              return url;
+            } else if (likelyUsesCdn) {
+              // 已知使用CDN的第三方平台，添加代理
+              return proxyUrl + encodeURIComponent(url);
+            } else if (!isIpAddress && !isPrivateIP && !url.startsWith(proxyUrl)) {
+              // 对于自定义域名，目前仍使用代理，因为无法在发起请求前判断是否使用Cloudflare
+              // 理想情况下，应检查域名是否解析到Cloudflare IP范围或检查HTTP响应头
+              // 但在前端JavaScript中无法直接进行DNS查询，也无法预先知道响应头
+              return proxyUrl + encodeURIComponent(url);
+            }
+          } catch (e) {
+            console.error('URL 解析错误:', e);
+            // 解析失败时，仍然尝试代理访问
+            if (!url.startsWith(proxyUrl)) {
+              return proxyUrl + encodeURIComponent(url);
+            }
           }
-          return url;
-        }).join('|');
-      }
+        }
+        return url;
+      }).join('|');
 
       this.customSubUrl =
         backend +
@@ -1103,23 +1216,86 @@ export default {
         return "无效的长链接格式";
       }
     },
+    
+    parseCustomUrlWithoutProxy(longUrl) {
+      try {
+        const url = new URL(longUrl);
+        const params = new URLSearchParams(url.search);
+        const encodedSource = params.get('url');
+        if (encodedSource) {
+          const decodedSource = decodeURIComponent(encodedSource);
+          // 如果是代理 URL，需要提取原始 URL
+          let result = decodedSource.split('|').join('\n');
+          // 移除代理前缀，获取原始 URL
+          const proxyPrefix = window.location.origin + '/api/proxy?url=';
+          result = result.split('\n').map(part => {
+            if (part.startsWith(proxyPrefix)) {
+              // 解码并返回原始 URL
+              return decodeURIComponent(part.substring(proxyPrefix.length));
+            }
+            return part;
+          }).join('\n');
+          return result;
+        }
+        return "无法解析原始订阅";
+      } catch (e) {
+        return "无效的长链接格式";
+      }
+    },
     makeShortUrl() {
       const self = this;
-      const slug = self.customShortSubUrl.trim().startsWith("http") ? "" : self.customShortSubUrl.trim();
+      
+      // 如果定制订阅URL为空，先生成订阅链接
+      if (!self.customSubUrl || self.customSubUrl.trim() === '') {
+        // 先执行 makeUrl，然后再执行短链接生成
+        this.makeUrl();
+        // 然后延迟执行短链接生成
+        setTimeout(() => {
+          this.executeShortUrlGeneration();
+        }, 500); // 延迟 500 毫秒等待 makeUrl 完成
+        return;
+      }
+      
+      // 如果已有定制订阅URL，直接执行短链接生成
+      this.executeShortUrlGeneration();
+    },
+    
+    executeShortUrlGeneration() {
+      const self = this;
+      const slug = self.form.customSlug.trim();
 
       const shortenerRequest = (currentSlug, overwrite = false) => {
         self.loading1 = true;
+
+        // 创建一个函数来移除代理前缀，获取原始 URL
+        const removeProxyPrefix = (url) => {
+          const proxyPrefix = window.location.origin + '/api/proxy?url=';
+          if (url.startsWith(proxyPrefix)) {
+            return decodeURIComponent(url.substring(proxyPrefix.length));
+          }
+          return url;
+        };
+
+        // 提取原始 URL，去除代理前缀
+        let originalUrl = self.customSubUrl;
+        // 处理 | 分隔的多个 URL
+        if (originalUrl.includes('|')) {
+          const urls = originalUrl.split('|').map(u => removeProxyPrefix(u)).join('|');
+          originalUrl = urls;
+        } else {
+          originalUrl = removeProxyPrefix(originalUrl);
+        }
 
         if (self.form.shortType.includes("short.wh8.xx.kg")) {
           const createEndpoint = self.form.shortType; // 直接使用完整 URL
 
           let requestBody = {
-            url: self.customSubUrl,
-            overwrite: overwrite
+            "url": self.customSubUrl, // 使用代理后的 URL，因为这是用户最终使用的链接
+            "overwrite": overwrite
           };
 
           if (currentSlug) {
-            requestBody.slug = currentSlug;
+            requestBody["slug"] = currentSlug;
           }
 
           self.$axios
@@ -1127,14 +1303,20 @@ export default {
               headers: { "Content-Type": "application/json" }
             })
             .then(res => {
-              if (res.data && res.data.link) { // 兼容你的 API 返回 link 字段
-                self.customShortSubUrl = res.data.link;
-                self.$copyText(res.data.link);
+              if (res.data && res.data.Code === 1 && (res.data.ShortUrl || res.data.link)) { // 符合 short.wh8.xx.kg API 格式，支持 ShortUrl 或 link 字段
+                // 优先使用 link 字段，如果不存在则使用 ShortUrl 字段
+                const shortUrl = res.data.link || res.data.ShortUrl;
+                self.customShortSubUrl = shortUrl;
+                self.$copyText(shortUrl);
                 self.$message.success("短链接已复制到剪贴板");
-              } else if (res.data.Code === 1 && res.data.ShortUrl) { // 兼容 v1.mk 格式
-                 self.customShortSubUrl = res.data.ShortUrl;
-                 self.$copyText(res.data.ShortUrl);
-                 self.$message.success("短链接已复制到剪贴板");
+                // 仅当用户输入了自定义后缀时才保存到历史记录
+                if (currentSlug) {
+                  self.saveCustomSlugToHistory(currentSlug);
+                }
+              } else if (res.data && res.data.Code === 0 && res.data.Message) {
+                // API 返回错误信息
+                self.$message.error("短链接生成失败：" + res.data.Message);
+                self.loading1 = false;
               } else {
                 throw new Error("API返回格式不正确或无链接");
               }
@@ -1144,21 +1326,31 @@ export default {
                 const existingUrl = error.response.data?.existingUrl || '';
 
                 if (existingUrl === self.customSubUrl) {
+                  // 尝试构建短链，注意这里假设短链格式
+                  // 如果 API 返回了 link 最好，如果没有，只能尝试拼接
+                  // 但 409 响应里通常不带 link，所以这里可能需要优化
+                  // 既然是冲突，说明 slug 已知
                   const shortenerBaseUrl = self.form.shortType.replace("/short", "");
                   const existingShortLink = `${shortenerBaseUrl}/${currentSlug}`;
+
                   self.customShortSubUrl = existingShortLink;
                   self.$copyText(existingShortLink);
                   self.$message.success("后缀已存在，已自动使用现有短链接");
                   self.loading1 = false;
+                  // 仅当用户输入了自定义后缀时才保存到历史记录
+                  if (currentSlug) {
+                    self.saveCustomSlugToHistory(currentSlug);
+                  }
                   return;
                 }
 
-                const existingSourceSubs = self.parseCustomUrl(existingUrl);
-                const currentSourceSubs = self.parseCustomUrl(self.customSubUrl);
+                // 解析 URL 时，移除代理前缀以进行公平比较
+                const existingSourceSubsWithoutProxy = self.parseCustomUrlWithoutProxy(existingUrl);
+                const currentSourceSubsWithoutProxy = self.parseCustomUrlWithoutProxy(self.customSubUrl);
 
                 let message = `该定制后缀已被占用，但指向不同的订阅内容。<br/>
-                              <strong>已存在的订阅:</strong><div class="url-compare">${existingSourceSubs}</div>
-                              <strong>当前的订阅:</strong><div class="url-compare">${currentSourceSubs}</div>
+                              <strong>已存在的订阅:</strong><div class="url-compare">${existingSourceSubsWithoutProxy}</div>
+                              <strong>当前的订阅:</strong><div class="url-compare">${currentSourceSubsWithoutProxy}</div>
                               是否覆盖它？`;
 
                 self.$confirm(message, '短链接后缀冲突', {
@@ -1188,7 +1380,7 @@ export default {
         else {
           const duan = self.form.shortType;
           let data = new FormData();
-          data.append("longUrl", btoa(self.customSubUrl));
+          data.append("longUrl", btoa(self.customSubUrl)); // 使用代理后的 URL，因为这是用户最终使用的链接
           if (currentSlug) {
             data.append("shortKey", currentSlug);
           }
@@ -1201,10 +1393,14 @@ export default {
                 self.customShortSubUrl = res.data.ShortUrl;
                 self.$copyText(res.data.ShortUrl);
                 self.$message.success("短链接已复制到剪贴板");
+                // 仅当用户输入了自定义后缀时才保存到历史记录
+                if (currentSlug) {
+                  self.saveCustomSlugToHistory(currentSlug);
+                }
               } else {
                 if (currentSlug) {
-                  self.$message.warning("自定义后缀已被占用，正在尝试生成随机后缀...");
-                  shortenerRequest(""); // 递归调用，但不带 slug
+                  self.$message.error("自定义后缀 '" + currentSlug + "' 已被占用，请尝试其他后缀");
+                  self.loading1 = false;
                 } else {
                   self.$message.error("短链接获取失败：" + res.data.Message);
                 }
@@ -1239,7 +1435,6 @@ export default {
             this.form.remoteConfig = res.data.data;
             this.$copyText(this.form.remoteConfig);
             this.dialogUploadConfigVisible = false;
-            this.btnBoolean = true;
           } else {
             this.$message.error("远程配置上传失败: " + res.data.msg);
           }
@@ -1452,9 +1647,6 @@ export default {
 };
 </script>
 <style>
-.el-form-item {
-  margin-bottom: 10px !important;
-}
 .long-url-confirm-box {
   width: 800px !important;
   max-width: 90% !important;
@@ -1479,5 +1671,12 @@ export default {
 .dark-mode .url-compare {
   background-color: #2a2a2a;
   border-color: #444;
+}
+.link-prepend {
+  text-decoration: none;
+}
+.link-actions {
+  margin-top: 5px;
+  text-align: right;
 }
 </style>
