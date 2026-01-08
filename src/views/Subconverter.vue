@@ -1688,18 +1688,13 @@ export default {
 /* 针对 small/mini 尺寸的表单项 */
 .el-form-item--small,
 .el-form-item--mini {
-    margin-bottom: 10px !important; /* 将 18px 减小到 10px，使用 !important 确保覆盖 */
+    margin-bottom: 5px !important; /* 将 18px 减小到 10px，使用 !important 确保覆盖 */
 }
 
 /* 针对默认尺寸的表单项 */
 .el-form-item {
-    margin-bottom: 14px !important; /* 将 22px 减小到 14px */
+    margin-bottom: 5px !important; /* 将 22px 减小到 14px */
 }
 
-/* 确保字体大小不受影响 */
-.el-form-item__label,
-.el-input__inner,
-.el-select .el-input__inner {
-  font-size: inherit !important;
-}
+
 </style>
