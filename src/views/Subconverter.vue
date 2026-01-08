@@ -18,10 +18,10 @@
           <el-container>
             <el-form :model="form" label-width="80px" label-position="left" style="width: 100%">
               <el-form-item label="订阅链接:">
-                  <!-- 提示信息放在 el-form-item 内容区的第一行 -->
-                  <!-- 移除 margin-left: 80px，因为现在它在内容区内部，会自动对齐输入框 -->
-                  <div style="font-size: 12px; color: #999; margin-bottom: 2px;">支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔</div>
-                  <el-input v-model="form.sourceSubUrl" type="textarea" rows="3" placeholder="" />
+                <!-- 恢复到正确的结构，提示信息在内容区内，自动与输入框对齐 -->
+                <div style="font-size: 12px; color: #999; margin-bottom: 2px;">支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔</div>
+                <el-input v-model="form.sourceSubUrl" type="textarea" rows="3"
+                  placeholder="" />
               </el-form-item>
               <el-form-item label="生成类型:">
                 <el-select v-model="form.clientType" style="width: 100%">
@@ -1655,8 +1655,8 @@ export default {
 .long-url-confirm-box .el-message-box__content {
   white-space: pre-wrap;
   word-break: break-all;
-  max-height: 500px; /* 增加最大高度 */
-  overflow-y: auto; /* 允许滚动 */
+  max-height: 500px;
+  overflow-y: auto;
 }
 .url-compare {
   background-color: #f5f5f5;
@@ -1673,10 +1673,6 @@ export default {
   background-color: #2a2a2a;
   border-color: #444;
 }
-.dark-mode .url-compare {
-  background-color: #2a2a2a;
-  border-color: #444;
-}
 .link-prepend {
   text-decoration: none;
 }
@@ -1684,62 +1680,14 @@ export default {
   margin-top: 5px;
   text-align: right;
 }
-/* 覆盖 Element UI 默认的表单项间距 */
 
-/* 针对 small/mini 尺寸的表单项 */
+/* 覆盖 Element UI 默认的表单项间距 (保持您想要的小间距) */
 .el-form-item--small,
 .el-form-item--mini {
-    margin-bottom: 5px !important; /* 将 18px 减小到 10px，使用 !important 确保覆盖 */
+    margin-bottom: 5px !important;
 }
 
-/* 针对默认尺寸的表单项 */
 .el-form-item {
-    margin-bottom: 5px !important; /* 将 22px 减小到 14px */
+    margin-bottom: 5px !important;
 }
-
-/* 订阅链接表单项样式：确保提示信息紧贴输入框 */
-.el-form-item__content .el-textarea {
-  margin-top: 2px;
-}
-
-/* 紧凑型表单项样式 */
-.tight-form-item {
-  display: flex;
-  align-items: flex-start;
-}
-
-.tight-form-item .el-form-item__label {
-  line-height: normal;
-  margin-right: 10px;
-}
-
-.tight-form-item .el-form-item__content {
-  margin-top: 0;
-  line-height: normal;
-}
-
-.tight-hint-text {
-  font-size: 12px;
-  color: #999;
-  margin: 0 0 2px 0;
-  padding: 0;
-  width: 100%;
-  line-height: normal;
-}
-
-
-/* 覆盖 Element UI 默认的表单项间距 */
-
-/* 针对 small/mini 尺寸的表单项 */
-.el-form-item--small,
-.el-form-item--mini {
-    margin-bottom: 5px !important; /* 将 18px 减小到 10px，使用 !important 确保覆盖 */
-}
-
-/* 针对默认尺寸的表单项 */
-.el-form-item {
-    margin-bottom: 5px !important; /* 将 22px 减小到 14px */
-}
-
-
 </style>
