@@ -1433,44 +1433,47 @@ export default {
 
       this.loadingReverse = true;
 
-      // 从当前选择的短链服务构建完整的短链地址
+      // 1. 确定 Query API 地址
       let shortenerBaseUrl = this.form.shortType;
+      // 移除结尾的 /short
       if (shortenerBaseUrl.endsWith('/short')) {
         shortenerBaseUrl = shortenerBaseUrl.slice(0, -6);
       }
-      const shortLink = `${shortenerBaseUrl}/${slug}`;
+
+      const queryUrl = `${shortenerBaseUrl}/query`;
       
       try {
-        const res = await fetch(shortLink, {
-          method: "GET",
-          redirect: "follow",
+        const response = await this.$axios.post(queryUrl, {
+            slug: slug
+        }, {
+            headers: { "Content-Type": "application/json" }
         });
 
-        if (res.url && res.url !== shortLink) {
-          const longUrl = res.url;
+        if (response.data && response.data.Code === 1 && response.data.LongUrl) {
+            const longUrl = response.data.LongUrl;
+            const shortLink = `${shortenerBaseUrl}/${slug}`;
 
-          // 1. 填充短链接
-          this.customShortSubUrl = shortLink;
+            // 填充数据
+            this.customShortSubUrl = shortLink;
+            this.customSubUrl = longUrl;
 
-          // 2. 填充长链接
-          this.customSubUrl = longUrl;
-
-          // 3. 解析并填充所有参数（包括 sourceSubUrl）
-          try {
-            const urlObj = new URL(longUrl);
-            this.parseUrlParams(urlObj);
-            this.$message.success('反查成功，已填充到对应位置');
-          } catch (e) {
-            console.error('解析参数失败:', e);
-            this.$message.error('解析长链接参数失败');
-          }
-
+            // 解析参数
+            try {
+                const urlObj = new URL(longUrl);
+                this.parseUrlParams(urlObj);
+                this.$message.success('反查成功，已填充到对应位置');
+            } catch (e) {
+                console.error('解析长链接失败:', e);
+                this.$message.warning('反查成功，但解析长链接参数失败');
+                // 即使解析失败，至少把长链接填进去
+                this.form.sourceSubUrl = longUrl;
+            }
         } else {
-          this.$message.error('反查失败，未检测到重定向，可能是跨域限制或后缀无效');
+            this.$message.error('反查失败：' + (response.data.Message || '未找到该后缀对应的链接'));
         }
       } catch (error) {
-        console.error('反查失败:', error);
-        this.$message.error('反查失败，请检查后缀是否正确，或短链服务不支持跨域请求');
+        console.error('反查请求失败:', error);
+        this.$message.error('反查请求失败，请检查网络或短链服务是否支持反查');
       } finally {
         this.loadingReverse = false;
       }
