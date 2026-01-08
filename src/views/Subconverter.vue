@@ -17,9 +17,11 @@
           </div>
           <el-container>
             <el-form :model="form" label-width="80px" label-position="left" style="width: 100%">
-              <el-form-item label="订阅链接:" style="display: flex; flex-direction: column">
-                <div style="font-size: 12px; color: #999; margin: 2px 0 2px 80px; padding: 0; width: calc(100% - 80px); line-height: normal;">支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔</div>
-                <el-input v-model="form.sourceSubUrl" type="textarea" rows="3" placeholder="" style="margin-top: 0;" />
+              <el-form-item label="订阅链接:">
+                  <!-- 提示信息放在 el-form-item 内容区的第一行 -->
+                  <!-- 移除 margin-left: 80px，因为现在它在内容区内部，会自动对齐输入框 -->
+                  <div style="font-size: 12px; color: #999; margin-bottom: 2px;">支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔</div>
+                  <el-input v-model="form.sourceSubUrl" type="textarea" rows="3" placeholder="" />
               </el-form-item>
               <el-form-item label="生成类型:">
                 <el-select v-model="form.clientType" style="width: 100%">
@@ -1700,9 +1702,29 @@ export default {
   margin-top: 2px;
 }
 
-/* 订阅链接表单项样式：确保提示信息紧贴输入框 */
-.el-form-item__content .el-textarea {
-  margin-top: 2px;
+/* 紧凑型表单项样式 */
+.tight-form-item {
+  display: flex;
+  align-items: flex-start;
+}
+
+.tight-form-item .el-form-item__label {
+  line-height: normal;
+  margin-right: 10px;
+}
+
+.tight-form-item .el-form-item__content {
+  margin-top: 0;
+  line-height: normal;
+}
+
+.tight-hint-text {
+  font-size: 12px;
+  color: #999;
+  margin: 0 0 2px 0;
+  padding: 0;
+  width: 100%;
+  line-height: normal;
 }
 
 
