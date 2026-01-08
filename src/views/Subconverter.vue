@@ -1286,12 +1286,12 @@ export default {
           const createEndpoint = self.form.shortType; // 直接使用完整 URL
 
           let requestBody = {
-            url: self.customSubUrl, // 使用代理后的 URL，因为这是用户最终使用的链接
-            overwrite: overwrite
+            "url": self.customSubUrl, // 使用代理后的 URL，因为这是用户最终使用的链接
+            "overwrite": overwrite
           };
 
           if (currentSlug) {
-            requestBody.slug = currentSlug;
+            requestBody["slug"] = currentSlug;
           }
 
           self.$axios
@@ -1299,22 +1299,20 @@ export default {
               headers: { "Content-Type": "application/json" }
             })
             .then(res => {
-              if (res.data && res.data.link) { // 兼容你的 API 返回 link 字段
-                self.customShortSubUrl = res.data.link;
-                self.$copyText(res.data.link);
+              if (res.data && res.data.Code === 1 && (res.data.ShortUrl || res.data.link)) { // 符合 short.wh8.xx.kg API 格式，支持 ShortUrl 或 link 字段
+                // 优先使用 link 字段，如果不存在则使用 ShortUrl 字段
+                const shortUrl = res.data.link || res.data.ShortUrl;
+                self.customShortSubUrl = shortUrl;
+                self.$copyText(shortUrl);
                 self.$message.success("短链接已复制到剪贴板");
                 // 仅当用户输入了自定义后缀时才保存到历史记录
                 if (currentSlug) {
                   self.saveCustomSlugToHistory(currentSlug);
                 }
-              } else if (res.data.Code === 1 && res.data.ShortUrl) { // 兼容 v1.mk 格式
-                 self.customShortSubUrl = res.data.ShortUrl;
-                 self.$copyText(res.data.ShortUrl);
-                 self.$message.success("短链接已复制到剪贴板");
-                 // 仅当用户输入了自定义后缀时才保存到历史记录
-                 if (currentSlug) {
-                  self.saveCustomSlugToHistory(currentSlug);
-                }
+              } else if (res.data && res.data.Code === 0 && res.data.Message) {
+                // API 返回错误信息
+                self.$message.error("短链接生成失败：" + res.data.Message);
+                self.loading1 = false;
               } else {
                 throw new Error("API返回格式不正确或无链接");
               }
