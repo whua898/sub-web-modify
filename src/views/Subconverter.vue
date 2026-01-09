@@ -1732,7 +1732,7 @@ export default {
 
 <style>
 /* ================================================= */
-/* Element UI 全局样式覆盖 */
+/* 1. Element UI 全局样式覆盖                        */
 /* ================================================= */
 
 /* 调整 el-card 头部内边距，使其更紧凑 */
@@ -1740,12 +1740,10 @@ export default {
   padding: 5px 20px !important;
 }
 
- /* 调整 el-card 主体内容内边距，控制底部空白 */
- .el-card__body {
-   /* 默认是 20px，减小此值可以让底部内容更靠近边框 */
-   padding-bottom: 5px !important;
- }
-
+/* 调整 el-card 主体内容内边距，控制底部空白 */
+.el-card__body {
+  padding-bottom: 5px !important;
+}
 
 /* 调整表单项间距 */
 .el-form-item--small,
@@ -1765,7 +1763,7 @@ export default {
 }
 
 /* ================================================= */
-/* 订阅链接特殊布局样式 */
+/* 2. 订阅链接区域样式                               */
 /* ================================================= */
 
 /* 提示信息：对齐标签，紧贴输入框 */
@@ -1788,17 +1786,80 @@ export default {
   line-height: 5px !important;
 }
 
-/* 调整主题切换按钮中太阳和月亮图标的间距 */
+/* 订阅链接文本域：不自动换行，显示横向滚动条 */
+.subscription-link-row .el-textarea__inner {
+  white-space: pre !important;
+  overflow-x: auto !important;
+}
+
+/* ================================================= */
+/* 3. 高级功能折叠面板样式                           */
+/* ================================================= */
+
+/* 高级功能外层容器间距 */
+.advanced-item {
+  margin-bottom: 0px !important;
+}
+
+/* 移除 collapse 组件自带的边框和间距 */
+.el-collapse {
+  border-top: none;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* 调整折叠面板头部高度和边框 */
+.el-collapse-item__header {
+  height: 35px;
+  line-height: 35px;
+  border-bottom: none;
+}
+
+/* 调整折叠面板内容区域边框 */
+.el-collapse-item__wrap {
+  border-bottom: none;
+}
+
+/* 确保折叠面板头部的表单项使用 Flex 布局，保证标签和按钮在同一行 */
+.el-collapse-item__header .el-form-item {
+  display: flex;
+  align-items: center;
+}
+
+/* 调整折叠面板头部内的表单项标签行高，使其垂直居中 */
+.el-collapse-item__header .el-form-item__label {
+  line-height: 35px;
+}
+
+/* 修复高级功能标题内容区对齐问题 */
+.el-collapse-item__header .el-form-item__content {
+  line-height: 35px !important;
+  margin-left: 0 !important;
+  flex: 1;
+}
+
+/* ================================================= */
+/* 4. 主题切换组件样式                               */
+/* ================================================= */
+
+/* 主题切换分割线：调整与上下组件的间距 */
+.theme-toggle-divider {
+  margin-top: 5px !important;
+  margin-bottom: 15px !important;
+}
+
+/* 主题切换按钮容器 */
 .el-button--zhuti {
   position: relative;
   width: 54px !important;
-  height: 20px !important;
+  height: 30px !important;
   padding: 0 !important;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+/* 按钮内的图标样式 */
 .el-button--zhuti .el-icon-sunny,
 .el-button--zhuti .el-icon-moon {
   position: static;
@@ -1807,7 +1868,7 @@ export default {
   flex-shrink: 0;
 }
 
-/* 使两个图标重叠 */
+/* 使两个图标绝对定位重叠，通过 JS 控制显示隐藏 */
 #rijian, #yejian {
   position: absolute;
   left: 50%;
@@ -1816,20 +1877,8 @@ export default {
   margin: 0 !important;
 }
 
-/* 调整主题切换按钮与上方元素的间距 */
-.el-divider--horizontal {
-  margin-top: -10px !important; /* 减小顶部间距 */
-  margin-bottom: 0px !important;
-}
-
-/* 订阅链接文本域：不自动换行，显示横向滚动条 */
-.subscription-link-row .el-textarea__inner {
-  white-space: pre !important;
-  overflow-x: auto !important;
-}
-
 /* ================================================= */
-/* 弹窗与确认框样式 */
+/* 5. 弹窗与确认框样式                               */
 /* ================================================= */
 
 /* 长链接确认框宽度调整 */
@@ -1865,7 +1914,7 @@ export default {
 }
 
 /* ================================================= */
-/* 其他辅助样式 */
+/* 6. 其他辅助样式                                   */
 /* ================================================= */
 
 .link-prepend {
@@ -1876,56 +1925,4 @@ export default {
   margin-top: 2px;
   text-align: right;
 }
-
-/* ================================================= */
-/* 修复高级功能开关与下方分割线的间距 */
-/* ================================================= */
-
-/* 移除 collapse 组件自带的边框 */
-.el-collapse {
-  border-top: none;
-  border-bottom: none;
-  margin-bottom: 0;
-}
-
-/* 减小折叠面板头部的高度 */
-.el-collapse-item__header {
-  height: 35px;
-  line-height: 35px;
-  border-bottom: none;
-}
-
-/* 调整折叠面板内容区域的边框 */
-.el-collapse-item__wrap {
-  border-bottom: none;
-}
-
-/* 确保折叠面板头部的表单项使用 Flex 布局，保证标签和按钮在同一行 */
-.el-collapse-item__header .el-form-item {
-  display: flex;
-  align-items: center;
-}
-
-/* 调整折叠面板头部内的表单项标签行高，使其垂直居中 */
-.el-collapse-item__header .el-form-item__label {
-  line-height: 35px;
-}
-
-/* 调整主题切换按钮与相邻组件间距 */
-.theme-toggle-divider {
-  margin-top: 5px !important;
-  margin-bottom: 15px !important;
-}
-
-.advanced-item {
-  margin-bottom: 0px !important;
-}
-
-/* 修复高级功能标题对齐问题 */
-.el-collapse-item__header .el-form-item__content {
-  line-height: 35px !important;
-  margin-left: 0 !important;
-  flex: 1;
-}
-
 </style>
