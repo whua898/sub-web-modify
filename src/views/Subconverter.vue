@@ -69,7 +69,7 @@
                       <el-input v-model="form.rename" placeholder="举例：`a@b``1@2`，|符可用\转义" />
                     </el-form-item>
                     <el-form-item label="远程设备:">
-                      <el-input v-model="form.devid" placeholder="用于设置QuantumultX的远程设备ID" />
+                      <el-input v-model="form.devid" placeholder="用于设置QuantumultX的远程设备ID" :disabled="form.clientType !== 'quanx'" />
                     </el-form-item>
                     <el-form-item label="更新间隔:">
                       <el-input v-model="form.interval" placeholder="返用于设置托管配置更新间隔，单位为天" />
@@ -96,7 +96,7 @@
                               <el-checkbox v-model="form.udp" label="启用 UDP"></el-checkbox>
                             </el-col>
                             <el-col :span="12">
-                              <el-checkbox v-model="form.xudp" label="启用 XUDP"></el-checkbox>
+                              <el-checkbox v-model="form.xudp" label="启用 XUDP" :disabled="!form.clientType.includes('clash') && !form.clientType.includes('singbox') && !form.clientType.includes('v2ray')"></el-checkbox>
                             </el-col>
                           </el-row>
                           <el-row :gutter="10">
@@ -849,9 +849,10 @@ export default {
               headers: { "Content-Type": "application/json" }
             })
             .then(res => {
-              if (res.data && res.data.Code === 1 && (res.data.ShortUrl || res.data.link)) { // 符合 short.wh8.xx.kg API 格式，支持 ShortUrl 或 link 字段
+              const resData = res.data;
+              if (resData && (resData.ShortUrl || resData.link)) { // 兼容 API 返回格式，只要有 ShortUrl 或 link 即视为成功
                 // 优先使用 link 字段，如果不存在则使用 ShortUrl 字段
-                const shortUrl = res.data.link || res.data.ShortUrl;
+                const shortUrl = resData.link || resData.ShortUrl;
                 self.customShortSubUrl = shortUrl;
                 self.$copyText(shortUrl);
                 self.$message.success("短链接已复制到剪贴板");
@@ -859,9 +860,9 @@ export default {
                 if (currentSlug) {
                   self.saveCustomSlugToHistory(currentSlug);
                 }
-              } else if (res.data && res.data.Code === 0 && res.data.Message) {
+              } else if (resData && resData.Code === 0 && resData.Message) {
                 // API 返回错误信息
-                self.$message.error("短链接生成失败：" + res.data.Message);
+                self.$message.error("短链接生成失败：" + resData.Message);
                 self.loading1 = false;
               } else {
                 throw new Error("API返回格式不正确或无链接");
@@ -1001,9 +1002,10 @@ export default {
         };
 
         const response = await fetchWithRetry();
+        const resData = response.data;
 
-        if (response.data && response.data.Code === 1 && response.data.LongUrl) {
-            const longUrl = response.data.LongUrl;
+        if (resData && (resData.LongUrl || (resData.Code === 1 && resData.LongUrl))) {
+            const longUrl = resData.LongUrl;
             const shortLink = `${shortenerBaseUrl}/${slug}`;
 
             // 解析参数，这会触发 watch 清空 customSubUrl 和 customShortSubUrl
@@ -1026,11 +1028,15 @@ export default {
             });
 
         } else {
-            this.$message.error('反查失败：' + (response.data.Message || '未找到该后缀对应的链接'));
+            this.$message.error('反查失败：' + (resData.Message || '未找到该后缀对应的链接'));
         }
       } catch (error) {
-        console.error('反查请求失败:', error);
-        this.$message.error('反查请求失败，请检查网络或短链服务是否支持反查');
+        if (error.response && error.response.status === 404) {
+          this.$message.error('短链不存在');
+        } else {
+          console.error('反查请求失败:', error);
+          this.$message.error('反查请求失败，请检查网络或短链服务是否支持反查');
+        }
       } finally {
         this.loadingReverse = false;
       }
