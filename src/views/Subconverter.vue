@@ -358,13 +358,13 @@ export default {
         nodeList: false,
         extraset: false,
         tls13: false,
-        udp: false,
+        udp: true,
         xudp: false,
         tfo: false,
         sort: false,
         expand: true,
         scv: false,
-        fdn: false,
+        fdn: true,
         appendType: false,
         insert: false, // 是否插入默认订阅的节点，对应配置项 insert_url
         new_name: true, // 是否使用 Clash 新字段
