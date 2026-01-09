@@ -3498,7 +3498,7 @@ export default {
 
 /* 调整 el-card 头部内边距，使其更紧凑 */
 .el-card__header {
-  padding: 5px 5px !important;
+  padding: 5px 20px !important;
 }
 
 /* 调整表单项间距 */
