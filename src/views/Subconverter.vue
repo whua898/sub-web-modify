@@ -160,7 +160,7 @@
               </el-divider>
               <el-form-item label="定制订阅:">
                 <el-input class="copy-content" disabled v-model="customSubUrl">
-                  <el-button slot="append" v-clipboard:copy="customSubUrl" v-clipboard:success="onCopy" ref="copy-btn"
+                  <el-button slot="append" v-clipboard:copy="customSubUrl" v-clipboard:success="onCopy"
                     icon="el-icon-document-copy">复制
                   </el-button>
                   <el-button slot="prepend" @click="openLink(customSubUrl)" icon="el-icon-link" v-if="customSubUrl">访问</el-button>
@@ -172,7 +172,7 @@
                     输入自定义短链接后缀，点击生成短链接可反复生成
                   </div>
                   <el-button slot="append" v-clipboard:copy="customShortSubUrl" v-clipboard:success="onCopy"
-                    ref="copy-btn" icon="el-icon-document-copy">复制
+                    icon="el-icon-document-copy">复制
                   </el-button>
                   <el-button slot="prepend" @click="openLink(customShortSubUrl)" icon="el-icon-link" v-if="customShortSubUrl">访问</el-button>
                 </el-input>
@@ -1092,7 +1092,8 @@ export default {
       }
     },
     parseUrlParams(url) {
-      this.form.customBackend = url.origin
+      // 提取后端地址，移除 /sub 路径，保留可能存在的子路径 (如 /api/v1)
+      this.form.customBackend = url.origin + url.pathname.replace(/\/sub$/, "");
       let param = new URLSearchParams(url.search);
       
       // 1. 处理客户端类型 (Target)
