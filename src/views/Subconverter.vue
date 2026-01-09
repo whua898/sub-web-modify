@@ -109,7 +109,7 @@
                           </el-row>
                           <el-row :gutter="10">
                             <el-col :span="12">
-                              <el-checkbox v-model="form.tpl.clash.doh" label="Clash.DoH"></el-checkbox>
+                              <el-checkbox v-model="form.emoji" label="Emoji"></el-checkbox>
                             </el-col>
                             <el-col :span="12">
                               <el-checkbox v-model="form.appendType" label="插入节点类型"></el-checkbox>
