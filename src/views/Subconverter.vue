@@ -1995,7 +1995,7 @@ export default {
 }
 
 /* 调整主题切换按钮与相邻组件间距 */
-.el-divider[style*="margin-top: -20px"] {
+.theme-toggle-divider {
   margin-top: -8px !important;
 }
 </style>
