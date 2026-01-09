@@ -1972,30 +1972,30 @@ export default {
 
 /* 移除 collapse 组件自带的边框 */
 .el-collapse {
-  border-top: none !important;
-  border-bottom: none !important;
-  margin-bottom: 0 !important;
+  border-top: none;
+  border-bottom: none;
+  margin-bottom: 0;
 }
 
 /* 减小折叠面板头部的高度 */
 .el-collapse-item__header {
-  height: 35px !important;
-  line-height: 35px !important;
-  border-bottom: none !important;
+  height: 35px;
+  line-height: 35px;
+  border-bottom: none;
 }
 
 /* 调整折叠面板内容区域的边框 */
 .el-collapse-item__wrap {
-  border-bottom: none !important;
+  border-bottom: none;
 }
 
 /* 调整折叠面板头部内的表单项标签行高，使其垂直居中 */
 .el-collapse-item__header .el-form-item__label {
-  line-height: 35px !important;
+  line-height: 35px;
 }
 
 /* 调整主题切换按钮与相邻组件间距 */
 .theme-toggle-divider {
-  margin-top: -8px !important;
+  margin-top: -8px;
 }
 </style>
