@@ -1792,6 +1792,7 @@ export default {
 .el-button--zhuti {
   position: relative;
   width: 54px !important;
+  height: 30px !important;
   padding: 0 !important;
   display: flex;
   align-items: center;
