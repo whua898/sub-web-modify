@@ -53,7 +53,7 @@
                   <el-collapse-item>
                     <template slot="title">
                       <el-form-item label="高级功能:" style="width: 100%;">
-                        <el-button type="limr" style="width: 100%;" icon="el-icon-more-outline">点击显示/隐藏
+                        <el-button type="text" style="width: 100%;" icon="el-icon-more-outline">点击显示/隐藏
                         </el-button>
                       </el-form-item>
                     </template>
@@ -314,7 +314,6 @@ const remoteConfigSample = process.env.VUE_APP_SUBCONVERTER_REMOTE_CONFIG
 const scriptConfigSample = process.env.VUE_APP_SCRIPT_CONFIG
 const filterConfigSample = process.env.VUE_APP_FILTER_CONFIG
 const defaultBackend = process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND
-const shortUrlBackend = process.env.VUE_APP_MYURLS_DEFAULT_BACKEND
 const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_BACKEND + '/sub.php'
 const basicVideo = process.env.VUE_APP_BASIC_VIDEO
 const advancedVideo = process.env.VUE_APP_ADVANCED_VIDEO
@@ -328,8 +327,8 @@ export default {
       // 基础状态
       isPC: true,
       btnBoolean: false,
-      backendVersion: "", // 后端版本，原代码中未初始化，补全防止报错
-      activeName: 'first', // 弹窗 tab 激活项，补全防止报错
+      backendVersion: "",
+      activeName: 'first',
       centerDialogVisible: false, // 视频弹窗控制
       
       // 选项配置
@@ -367,8 +366,8 @@ export default {
           "CM应急备用后端【vless reality+hy1+hy2】": "https://subapi.fxxk.dedyn.io",
           "肥羊增强型后端【vless reality+hy1+hy2】": "https://url.v1.mk",
           "肥羊备用后端【vless reality+hy1+hy2】": "https://sub.d1.mk",
-          nameless13提供: "https://www.nameless13.com",
-          subconverter作者提供: "https://sub.xeton.dev",
+          "nameless13提供": "https://www.nameless13.com",
+          "subconverter作者提供": "https://sub.xeton.dev",
           "sub-web作者提供": "https://api.wcc.best",
         },
         remoteConfig: [
@@ -851,7 +850,6 @@ export default {
       uploadFilter: "",
       uploadScript: "",
       uploadConfig: "",
-      myBot: tgBotLink,
       filterConfig: filterConfigSample,
       scriptConfig: scriptConfigSample,
       sampleConfig: remoteConfigSample
@@ -1025,8 +1023,7 @@ export default {
       window.open(yglink);
     },
     toolsDown() {
-      // 原代码中 downld 未定义，这里注释掉或指向一个默认值
-      // window.open(downld);
+      // 下载链接暂未配置
       this.$message.warning("下载链接未配置");
     },
     gotoBasicVideo() {
