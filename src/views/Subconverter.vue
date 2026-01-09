@@ -42,95 +42,6 @@
                   <el-option v-for="(v, k) in options.shortTypes" :key="k" :label="k" :value="v"></el-option>
                 </el-select>
               </el-form-item>
-            </el-form>
-          </el-container>
-        </el-card>
-      </el-col>
-    </el-row>
-  </div>
-</template>
-
-<script>
-import { mapState } from 'vuex'
-
-export default {
-  data() {
-    return {
-      form: {
-        sourceSubUrl: '',
-        clientType: 'clash',
-        customBackend: '',
-        shortType: ''
-      }
-    }
-  },
-  computed: {
-    ...mapState(['options'])
-  },
-  methods: {
-    selectChanged(value) {
-      this.$store.commit('setCustomBackend', value)
-    },
-    goToProject() {
-      window.open('https://github.com/xxf098/xxf098.github.io')
-    },
-    gotoTgChannel() {
-      window.open('https://t.me/xxf098')
-    },
-    gotoYouTuBe() {
-      window.open('https://www.youtube.com/channel/UCR0wQ0GzG0wQ0GzG0wQ0GzG')
-    }
-  }
-}
-
-</script>
-
-<style>
-/* 调整折叠面板头部内的表单项标签行高，使其垂直居中 */
-.el-collapse-item__header .el-form-item__label {
-  line-height: 35px !important;
-}
-
-/* 调整订阅链接行的标签行高，使其对齐 */
-.subscription-link-row .el-form-item__label {
-  line-height: 5px !important;
-}
-
-/* 调整主题切换按钮中太阳和月亮图标的间距 */
-.el-button--zhuti {
-  position: relative;
-  width: 54px !important;
-  padding: 0 !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.el-button--zhuti .el-icon-sunny,
-.el-button--zhuti .el-icon-moon {
-  position: static;
-  margin: 0;
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-/* 使两个图标重叠 */
-#rijian, #yejian {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  margin: 0 !important;
-}
-
-/* 调整主题切换按钮与上方元素的间距 */
-.el-divider {
-  margin-top: -10px !important; /* 减小顶部间距 */
-  margin-bottom: 0px !important;
-}
-
-</style>
-
               <el-form-item label="远程配置:" v-if="showRemoteConfig">
                 <el-select v-model="form.remoteConfig" allow-create filterable placeholder="请选择" style="width: 100%">
                   <el-option-group v-for="group in options.remoteConfig" :key="group.label" :label="group.label">
@@ -143,7 +54,7 @@ export default {
                 <el-collapse>
                   <el-collapse-item>
                     <template slot="title">
-                      <el-form-item label="高级功能:" style="width: 100%; margin-bottom: 0 !important;">
+                      <el-form-item label="高级功能:" style="width: 100%; margin-bottom: 0;">
                         <el-button type="text" style="width: 100%; font-size: 15px; text-align: center; padding-right: 80px;" icon="el-icon-more-outline">点击显示/隐藏
                         </el-button>
                       </el-form-item>
