@@ -1852,6 +1852,7 @@ export default {
 .el-collapse {
   border-top: none !important;
   border-bottom: none !important;
+  margin-bottom: 0 !important;
 }
 
 /* 减小折叠面板头部的高度 */
