@@ -1899,6 +1899,12 @@ export default {
   border-bottom: none;
 }
 
+/* 确保折叠面板头部的表单项使用 Flex 布局，保证标签和按钮在同一行 */
+.el-collapse-item__header .el-form-item {
+  display: flex;
+  align-items: center;
+}
+
 /* 调整折叠面板头部内的表单项标签行高，使其垂直居中 */
 .el-collapse-item__header .el-form-item__label {
   line-height: 35px;
@@ -1918,6 +1924,7 @@ export default {
 .el-collapse-item__header .el-form-item__content {
   line-height: 35px !important;
   margin-left: 0 !important;
+  flex: 1;
 }
 
 </style>
