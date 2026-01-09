@@ -29,6 +29,47 @@
                 <el-select v-model="form.clientType" style="width: 100%">
                   <el-option v-for="(v, k) in options.clientTypes" :key="k" :label="k" :value="v"></el-option>
                 </el-select>
+```
+
+```
+/* 调整订阅链接行的标签行高，使其对齐 */
+.subscription-link-row .el-form-item__label {
+  line-height: 5px !important;
+}
+
+/* 调整主题切换按钮中太阳和月亮图标的间距 */
+.el-button--zhuti {
+  position: relative;
+  width: 54px !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.el-button--zhuti .el-icon-sunny,
+.el-button--zhuti .el-icon-moon {
+  position: static;
+  margin: 0;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* 使两个图标重叠 */
+#rijian, #yejian {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0 !important;
+}
+
+/* 调整主题切换按钮与上方元素的间距 */
+.el-divider {
+  margin-top: -10px !important; /* 减小顶部间距 */
+  margin-bottom: 0px !important;
+}
+
               </el-form-item>
               <el-form-item label="后端地址:">
                 <el-select v-model="form.customBackend" allow-create filterable @change="selectChanged"
@@ -1787,6 +1828,39 @@ export default {
 /* 调整订阅链接行的标签行高，使其对齐 */
 .subscription-link-row .el-form-item__label {
   line-height: 5px !important;
+}
+
+/* 调整主题切换按钮中太阳和月亮图标的间距 */
+.el-button--zhuti {
+  position: relative;
+  width: 54px !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.el-button--zhuti .el-icon-sunny,
+.el-button--zhuti .el-icon-moon {
+  position: static;
+  margin: 0;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* 使两个图标重叠 */
+#rijian, #yejian {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0 !important;
+}
+
+/* 调整主题切换按钮与上方元素的间距 */
+.el-divider--horizontal {
+  margin-top: -8px !important; /* 减小顶部间距 */
+  margin-bottom: 0px !important;
 }
 
 /* 订阅链接文本域：不自动换行，显示横向滚动条 */
