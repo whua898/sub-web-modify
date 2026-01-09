@@ -3501,6 +3501,13 @@ export default {
   padding: 5px 20px !important;
 }
 
+ /* 调整 el-card 主体内容内边距，控制底部空白 */
+ .el-card__body {
+   /* 默认是 20px，减小此值可以让底部内容更靠近边框 */
+   padding-bottom: 5px !important;
+ }
+
+
 /* 调整表单项间距 */
 .el-form-item--small,
 .el-form-item--mini {
