@@ -50,7 +50,7 @@
                   </el-option-group>
                 </el-select>
               </el-form-item>
-              <el-form-item label-width="0px" style="margin-bottom: 0px !important;">
+              <el-form-item label-width="0px" class="advanced-item">
                 <el-collapse>
                   <el-collapse-item>
                     <template slot="title">
@@ -1907,6 +1907,12 @@ export default {
 
 /* 调整主题切换按钮与相邻组件间距 */
 .theme-toggle-divider {
-  margin-top: -8px;
+  margin-top: -20px !important;
+  margin-bottom: 0 !important;
 }
+
+.advanced-item {
+  margin-bottom: 0 !important;
+}
+
 </style>
