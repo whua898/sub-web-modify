@@ -179,8 +179,8 @@
                 </el-input>
               </el-form-item>
               <el-form-item label="定制后缀:">
-                <el-input v-model="form.customSlug" placeholder="可选,如GCP" style="width: 11.2%;"></el-input>
-                <el-select v-model="form.customSlug" placeholder="历史后缀" style="width: 11%; margin-left: 10px;">
+                <el-input v-model="form.customSlug" placeholder="可选,如GCP" style="width: 10%;"></el-input>
+                <el-select v-model="form.customSlug" placeholder="历史后缀" style="width: 10%; margin-left: 10px;">
                   <el-option
                     v-for="item in customSlugHistory"
                     :key="item"
@@ -1828,4 +1828,12 @@ export default {
 /* .subscription-link-row .el-form-item__label {
     line-height: 20px !important;
 } */
+
+/* 调整所有 el-input 的左右内边距，使其更紧凑 */
+.el-input__inner {
+    /* 默认可能是 15px，我们将其减小到 10px 或 5px */
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+
 </style>
