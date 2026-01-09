@@ -1906,8 +1906,8 @@ export default {
 
 /* 调整主题切换按钮与相邻组件间距 */
 .theme-toggle-divider {
-  margin-top: 20px !important;
-  margin-bottom: 20px !important;
+  margin-top: 5px !important;
+  margin-bottom: 5px !important;
 }
 
 .advanced-item {
