@@ -85,7 +85,7 @@
                         <el-popover placement="bottom" v-model="form.extraset">
                           <el-row :gutter="10">
                             <el-col :span="12">
-                              <el-checkbox v-model="form.emoji" label="Emoji"></el-checkbox>
+                              <el-checkbox v-model="form.tpl.clash.doh" label="Clash.DoH" :disabled="!form.clientType.includes('clash')"></el-checkbox>
                             </el-col>
                             <el-col :span="12">
                               <el-checkbox v-model="form.insert" label="插入默认节点"></el-checkbox>
@@ -117,7 +117,7 @@
                           </el-row>
                           <el-row :gutter="10">
                             <el-col :span="12">
-                              <el-checkbox v-model="form.tpl.surge.doh" label="Surge.DoH"></el-checkbox>
+                              <el-checkbox v-model="form.tpl.surge.doh" label="Surge.DoH" :disabled="!form.clientType.includes('surge')"></el-checkbox>
                             </el-col>
                             <el-col :span="12">
                               <el-checkbox v-model="form.tls13" label="开启TLS_1.3"></el-checkbox>
@@ -128,7 +128,7 @@
                               <el-checkbox v-model="form.expand" label="展开规则全文"></el-checkbox>
                             </el-col>
                             <el-col :span="12">
-                              <el-checkbox v-model="form.new_name" label="Clash新字段名"></el-checkbox>
+                              <el-checkbox v-model="form.new_name" label="Clash新字段名" :disabled="!form.clientType.includes('clash')"></el-checkbox>
                             </el-col>
                           </el-row>
                           <el-row :gutter="10">
@@ -141,7 +141,7 @@
                           </el-row>
                           <el-row :gutter="10">
                             <el-col :span="12">
-                              <el-checkbox v-model="form.tpl.singbox.ipv6" label="Sing-Box支持IPV6"></el-checkbox>
+                              <el-checkbox v-model="form.tpl.singbox.ipv6" label="Sing-Box支持IPV6" :disabled="!form.clientType.includes('singbox')"></el-checkbox>
                             </el-col>
 
                           </el-row>
