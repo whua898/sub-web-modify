@@ -3,14 +3,16 @@
     <el-row style="margin-top: 10px">
       <el-col>
         <el-card>
-          <div slot="header">
-            <svg-icon class="gayhub" icon-class="github" style="float:left" @click="goToProject" />
-            <svg-icon class="dianbao" icon-class="telegram" style="float:left;margin-left: 10px"
-              @click="gotoTgChannel" />
-            <svg-icon class="youguan" icon-class="youtube" style="float:right;margin-left:10px" @click="gotoYouTuBe" />
-            <svg-icon class="channel" icon-class="telegram" style="float:right;margin-left: 10px"
-              @click="gotoTgChannel" />
-            <div style="text-align:center;font-size:20px">订 阅 转 换</div>
+          <div slot="header" style="position: relative;">
+            <div style="position: absolute; left: 0; top: 0; display: flex; align-items: center; height: 100%;">
+              <svg-icon class="gayhub" icon-class="github" @click="goToProject" />
+              <svg-icon class="dianbao" icon-class="telegram" style="margin-left: 10px" @click="gotoTgChannel" />
+            </div>
+            <div style="text-align: center; font-size: 20px;">订 阅 转 换</div>
+            <div style="position: absolute; right: 0; top: 0; display: flex; align-items: center; height: 100%; flex-direction: row-reverse;">
+              <svg-icon class="youguan" icon-class="youtube" style="margin-left: 10px" @click="gotoYouTuBe" />
+              <svg-icon class="channel" icon-class="telegram" style="margin-left: 10px" @click="gotoTgChannel" />
+            </div>
           </div>
           <el-container>
             <el-form :model="form" label-width="80px" label-position="left" style="width: 100%">
