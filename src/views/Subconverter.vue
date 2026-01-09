@@ -180,7 +180,7 @@
               </el-form-item>
               <el-form-item label="定制后缀:">
                 <el-input v-model="form.customSlug" placeholder="可选，如 GCP" style="width: 13%;"></el-input>
-                <el-select v-model="form.customSlug" placeholder="历史后缀" style="width: 12%; margin-left: 10px;">
+                <el-select v-model="form.customSlug" placeholder="历史后缀" style="width: 11%; margin-left: 10px;">
                   <el-option
                     v-for="item in customSlugHistory"
                     :key="item"
