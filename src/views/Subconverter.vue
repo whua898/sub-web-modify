@@ -50,7 +50,7 @@
                   </el-option-group>
                 </el-select>
               </el-form-item>
-              <el-form-item label-width="0px">
+              <el-form-item label-width="0px" style="margin-bottom: 0px !important;">
                 <el-collapse>
                   <el-collapse-item>
                     <template slot="title">
@@ -152,7 +152,7 @@
                   </el-collapse-item>
                 </el-collapse>
               </el-form-item>
-              <el-divider content-position="center" style="margin-top: 5px; margin-bottom: 5px;">
+              <el-divider content-position="center" style="margin-top: 0px !important; margin-bottom: 0px !important;">
                 <el-button type="zhuti" @click="change">
                   <i id="rijian" class="el-icon-sunny"></i>
                   <i id="yejian" class="el-icon-moon"></i>
