@@ -1956,6 +1956,9 @@ export default {
                   @click="centerDialogVisible = true">视频教程
                 </el-button>
               </el-form-item>
+              <el-form-item style="text-align: center">
+                <span style="font-size: 12px; color: #999;">后端版本: {{ backendVersion }}</span>
+              </el-form-item>
             </el-form>
           </el-container>
         </el-card>
