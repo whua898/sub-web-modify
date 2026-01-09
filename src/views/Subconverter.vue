@@ -1838,4 +1838,10 @@ export default {
     padding-right: 10px !important;
 }
 
+/* 让订阅链接输入框内的文本不自动换行，超出部分显示滚动条 */
+.subscription-link-row .el-textarea__inner {
+    white-space: pre !important;
+    overflow-x: auto !important;
+}
+
 </style>
