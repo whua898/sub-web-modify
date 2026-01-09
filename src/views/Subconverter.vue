@@ -1832,8 +1832,8 @@ export default {
 /* 调整所有 el-input 的左右内边距，使其更紧凑 */
 .el-input__inner {
     /* 默认可能是 15px，我们将其减小到 10px 或 5px */
-    padding-left: 10px !important;
-    padding-right: 10px !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
 }
 
 </style>
