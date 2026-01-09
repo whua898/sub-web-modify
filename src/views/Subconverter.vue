@@ -1825,9 +1825,9 @@ export default {
 }
 
 /* 3. （可选）如果标签没有和输入框对齐，可以取消这部分注释进行微调： */
-/* .subscription-link-row .el-form-item__label {
-    line-height: 20px !important;
-} */
+.subscription-link-row .el-form-item__label {
+    line-height: 5px !important;
+}
 
 
 /* 调整所有 el-input 的左右内边距，使其更紧凑 */
