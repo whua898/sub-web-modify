@@ -1829,12 +1829,6 @@ export default {
     line-height: 20px !important;
 } */
 
-/* 调整所有 el-input 的左右内边距，使其更紧凑 */
-.el-input__inner {
-    /* 默认可能是 15px，我们将其减小到 10px 或 5px */
-    padding-left: 15px !important;
-    padding-right: 15px !important;
-}
 
 /* 如果要特别针对“定制后缀”这个输入框，可以给它添加一个特殊的 class */
 /* <el-input class="custom-slug-input" ... > */
