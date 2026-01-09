@@ -1818,7 +1818,7 @@ export default {
 
 /* 调整主题切换按钮与上方元素的间距 */
 .el-divider--horizontal {
-  margin-top: -8px !important; /* 减小顶部间距 */
+  margin-top: -10px !important; /* 减小顶部间距 */
   margin-bottom: 0px !important;
 }
 
