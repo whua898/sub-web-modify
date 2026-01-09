@@ -1337,7 +1337,6 @@ export default {
                 if (existingUrl === self.customSubUrl) {
                   // 尝试构建短链，注意这里假设短链格式
                   // 如果 API 返回了 link 最好，如果没有，只能尝试拼接
-                  // 但 409 响应里通常不带 link，所以这里可能需要优化
                   // 既然是冲突，说明 slug 已知
                   const shortenerBaseUrl = self.form.shortType.replace("/short", "");
                   const existingShortLink = `${shortenerBaseUrl}/${currentSlug}`;
@@ -1907,8 +1906,8 @@ export default {
 
 /* 调整主题切换按钮与相邻组件间距 */
 .theme-toggle-divider {
-  margin-top: 10px !important;
-  margin-bottom: 0 !important;
+  margin-top: 20px !important;
+  margin-bottom: 20px !important;
 }
 
 .advanced-item {
