@@ -53,7 +53,7 @@
                   <el-collapse-item>
                     <template slot="title">
                       <el-form-item label="高级功能:" style="width: 100%;">
-                        <el-button type="text" style="width: 100%;" icon="el-icon-more-outline">点击显示/隐藏
+                        <el-button type="text" style="width: 100%; font-size: 15px; text-align: center;" icon="el-icon-more-outline">点击显示/隐藏
                         </el-button>
                       </el-form-item>
                     </template>
