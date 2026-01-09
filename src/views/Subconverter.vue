@@ -910,18 +910,29 @@ export default {
       this.getBackendVersion();
     },
     getBackendVersion() {
+      const url =
+        this.form.customBackend.indexOf("http") !== -1
+          ? this.form.customBackend.replace(/\/$/, "") + "/version"
+          : defaultBackend.replace(/\/$/, "") + "/version";
+
+      const handleSuccess = (res) => {
+        this.backendVersion = res.data.replace(/backend\n$/gm, "");
+        this.backendVersion = this.backendVersion.replace("subconverter", "SubConverter");
+      };
+
       this.$axios
-        .get(
-          this.form.customBackend.indexOf("http") !== -1
-            ? this.form.customBackend.replace(/\/$/, "") + "/version"
-            : defaultBackend.replace(/\/$/, "") + "/version"
-        )
-        .then(res => {
-          this.backendVersion = res.data.replace(/backend\n$/gm, "");
-          this.backendVersion = this.backendVersion.replace("subconverter", "SubConverter");
-        })
+        .get(url)
+        .then(handleSuccess)
         .catch(() => {
-          this.$message.error("请求SubConverter版本号返回数据失败，该后端不可用！");
+          // 失败后延迟 1 秒重试一次
+          setTimeout(() => {
+            this.$axios
+              .get(url)
+              .then(handleSuccess)
+              .catch(() => {
+                this.$message.error("请求SubConverter版本号返回数据失败，该后端不可用！");
+              });
+          }, 1000);
         });
     },
     getUrlParam() {
@@ -1446,11 +1457,24 @@ export default {
       const queryUrl = `${shortenerBaseUrl}/query`;
 
       try {
-        const response = await this.$axios.post(queryUrl, {
-            slug: slug
-        }, {
-            headers: { "Content-Type": "application/json" }
-        });
+        // 定义重试逻辑
+        const fetchWithRetry = async (retryCount = 0) => {
+          try {
+            return await this.$axios.post(queryUrl, {
+              slug: slug
+            }, {
+              headers: { "Content-Type": "application/json" }
+            });
+          } catch (error) {
+            if (retryCount < 1) { // 失败后重试 1 次
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              return fetchWithRetry(retryCount + 1);
+            }
+            throw error;
+          }
+        };
+
+        const response = await fetchWithRetry();
 
         if (response.data && response.data.Code === 1 && response.data.LongUrl) {
             const longUrl = response.data.LongUrl;
