@@ -54,7 +54,7 @@
                 <el-collapse>
                   <el-collapse-item>
                     <template slot="title">
-                      <el-form-item label="高级功能:" style="width: 100%;">
+                      <el-form-item label="高级功能:" style="width: 100%; margin-bottom: 0 !important;">
                         <el-button type="text" style="width: 100%; font-size: 15px; text-align: center; padding-right: 80px;" icon="el-icon-more-outline">点击显示/隐藏
                         </el-button>
                       </el-form-item>
@@ -1842,5 +1842,32 @@ export default {
 .link-actions {
   margin-top: 2px;
   text-align: right;
+}
+
+/* ================================================= */
+/* 修复高级功能开关与下方分割线的间距 */
+/* ================================================= */
+
+/* 移除 collapse 组件自带的边框 */
+.el-collapse {
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+/* 减小折叠面板头部的高度 */
+.el-collapse-item__header {
+  height: 35px !important;
+  line-height: 35px !important;
+  border-bottom: none !important;
+}
+
+/* 调整折叠面板内容区域的边框 */
+.el-collapse-item__wrap {
+  border-bottom: none !important;
+}
+
+/* 调整折叠面板头部内的表单项标签行高，使其垂直居中 */
+.el-collapse-item__header .el-form-item__label {
+  line-height: 35px !important;
 }
 </style>
