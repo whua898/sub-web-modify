@@ -331,7 +331,7 @@ export default {
       backendVersion: "", // 后端版本，原代码中未初始化，补全防止报错
       activeName: 'first', // 弹窗 tab 激活项，补全防止报错
       centerDialogVisible: false, // 视频弹窗控制
-
+      
       // 选项配置
       options: {
         clientTypes: {
@@ -907,15 +907,22 @@ export default {
   },
   methods: {
     selectChanged() {
-      // 原代码中未定义，占位防止报错
-      this.customSubUrl = '';
-      this.customShortSubUrl = '';
+      this.getBackendVersion();
     },
     getBackendVersion() {
-      // 原代码中未定义，模拟获取或保持空白
-      this.backendVersion = "v0.0.1 (Unknown)";
-      // 实际应请求后端接口，例如：
-      // this.$axios.get(this.form.customBackend + '/version').then(res => this.backendVersion = res.data)
+      this.$axios
+        .get(
+          this.form.customBackend.indexOf("http") !== -1
+            ? this.form.customBackend.replace(/\/$/, "") + "/version"
+            : defaultBackend.replace(/\/$/, "") + "/version"
+        )
+        .then(res => {
+          this.backendVersion = res.data.replace(/backend\n$/gm, "");
+          this.backendVersion = this.backendVersion.replace("subconverter", "SubConverter");
+        })
+        .catch(() => {
+          this.$message.error("请求SubConverter版本号返回数据失败，该后端不可用！");
+        });
     },
     getUrlParam() {
       let query = window.location.search.substring(1);
