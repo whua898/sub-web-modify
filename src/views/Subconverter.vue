@@ -1834,8 +1834,8 @@ export default {
 .el-input__inner,
 .el-textarea__inner {
     /* 默认可能是 15px，我们将其减小到 10px 或 5px */
-    padding-left: 5px !important;
-    padding-right: 5px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
 }
 
 </style>
