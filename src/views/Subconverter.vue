@@ -1918,7 +1918,7 @@ export default {
 }
 
 .advanced-item {
-  margin-bottom: 5px !important;
+  margin-bottom: 15px !important;
 }
 
 /* 修复高级功能标题对齐问题 */
