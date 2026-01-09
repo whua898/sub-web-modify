@@ -1809,7 +1809,7 @@ export default {
     font-size: 12px;
     color: #999;
     /* 核心：将提示信息向右推 80px (您的 label-width) + 10px (Element UI默认的padding) */
-    margin-left: 90px;
+    margin-left: 85px;
     /* 消除底部边距，实现紧贴 */
     margin-bottom: 0px;
     /* 确保文本在一行内显示 */
