@@ -29,9 +29,68 @@
                 <el-select v-model="form.clientType" style="width: 100%">
                   <el-option v-for="(v, k) in options.clientTypes" :key="k" :label="k" :value="v"></el-option>
                 </el-select>
-```
+              </el-form-item>
+              <el-form-item label="后端地址:">
+                <el-select v-model="form.customBackend" allow-create filterable @change="selectChanged"
+                  placeholder="可输入自己的后端" style="width: 100%">
+                  <el-option v-for="(v, k) in options.customBackend" :key="k" :label="k" :value="v"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="短链选择:">
+                <el-select v-model="form.shortType" allow-create filterable placeholder="可输入其他可用短链API"
+                  style="width: 100%">
+                  <el-option v-for="(v, k) in options.shortTypes" :key="k" :label="k" :value="v"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-form>
+          </el-container>
+        </el-card>
+      </el-col>
+    </el-row>
+  </div>
+</template>
 
-```
+<script>
+import { mapState } from 'vuex'
+
+export default {
+  data() {
+    return {
+      form: {
+        sourceSubUrl: '',
+        clientType: 'clash',
+        customBackend: '',
+        shortType: ''
+      }
+    }
+  },
+  computed: {
+    ...mapState(['options'])
+  },
+  methods: {
+    selectChanged(value) {
+      this.$store.commit('setCustomBackend', value)
+    },
+    goToProject() {
+      window.open('https://github.com/xxf098/xxf098.github.io')
+    },
+    gotoTgChannel() {
+      window.open('https://t.me/xxf098')
+    },
+    gotoYouTuBe() {
+      window.open('https://www.youtube.com/channel/UCR0wQ0GzG0wQ0GzG0wQ0GzG')
+    }
+  }
+}
+
+</script>
+
+<style>
+/* 调整折叠面板头部内的表单项标签行高，使其垂直居中 */
+.el-collapse-item__header .el-form-item__label {
+  line-height: 35px !important;
+}
+
 /* 调整订阅链接行的标签行高，使其对齐 */
 .subscription-link-row .el-form-item__label {
   line-height: 5px !important;
@@ -70,19 +129,8 @@
   margin-bottom: 0px !important;
 }
 
-              </el-form-item>
-              <el-form-item label="后端地址:">
-                <el-select v-model="form.customBackend" allow-create filterable @change="selectChanged"
-                  placeholder="可输入自己的后端" style="width: 100%">
-                  <el-option v-for="(v, k) in options.customBackend" :key="k" :label="k" :value="v"></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="短链选择:">
-                <el-select v-model="form.shortType" allow-create filterable placeholder="可输入其他可用短链API"
-                  style="width: 100%">
-                  <el-option v-for="(v, k) in options.shortTypes" :key="k" :label="k" :value="v"></el-option>
-                </el-select>
-              </el-form-item>
+</style>
+
               <el-form-item label="远程配置:" v-if="showRemoteConfig">
                 <el-select v-model="form.remoteConfig" allow-create filterable placeholder="请选择" style="width: 100%">
                   <el-option-group v-for="group in options.remoteConfig" :key="group.label" :label="group.label">
@@ -1944,5 +1992,10 @@ export default {
 /* 调整折叠面板头部内的表单项标签行高，使其垂直居中 */
 .el-collapse-item__header .el-form-item__label {
   line-height: 35px !important;
+}
+
+/* 调整主题切换按钮与相邻组件间距 */
+.el-divider[style*="margin-top: -20px"] {
+  margin-top: -8px !important;
 }
 </style>
