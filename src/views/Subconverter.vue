@@ -1906,12 +1906,18 @@ export default {
 
 /* 调整主题切换按钮与相邻组件间距 */
 .theme-toggle-divider {
-  margin-top: 5px !important;
-  margin-bottom: 15px !important;
+  margin-top: 20px !important;
+  margin-bottom: 20px !important;
 }
 
 .advanced-item {
   margin-bottom: 0 !important;
+}
+
+/* 修复高级功能标题对齐问题 */
+.el-collapse-item__header .el-form-item__content {
+  line-height: 35px !important;
+  margin-left: 0 !important;
 }
 
 </style>
