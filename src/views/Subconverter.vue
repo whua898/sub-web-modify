@@ -54,10 +54,12 @@
                 <el-collapse>
                   <el-collapse-item>
                     <template slot="title">
-                      <el-form-item label="高级功能:" style="width: 100%; margin-bottom: 0;">
-                        <el-button type="text" style="width: 100%; font-size: 15px; text-align: center; padding-right: 80px;" icon="el-icon-more-outline">点击显示/隐藏
-                        </el-button>
-                      </el-form-item>
+                      <div style="display: flex; align-items: center; width: 100%;">
+                        <div style="width: 80px; font-size: 14px; color: #606266; text-align: left;">高级功能:</div>
+                        <div style="flex: 1; text-align: center;">
+                          <el-button type="text" style="font-size: 15px; padding-right: 80px;" icon="el-icon-more-outline">点击展开/收起</el-button>
+                        </div>
+                      </div>
                     </template>
                     <el-form-item label="包含节点:">
                       <el-input v-model="form.includeRemarks" placeholder="要保留的节点，支持正则" />
@@ -1805,6 +1807,7 @@ export default {
 .el-button--zhuti {
   position: relative;
   width: 54px !important;
+  height: 20px !important;
   padding: 0 !important;
   display: flex;
   align-items: center;
