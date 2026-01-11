@@ -3,19 +3,17 @@
     <el-row style="margin-top: 10px">
       <el-col>
         <el-card>
-          <template #header>
-            <div style="position: relative;">
-              <div style="position: absolute; left: 0; top: 0; display: flex; align-items: center; height: 100%;">
-                <svg-icon class="gayhub" icon-class="github" @click="goToProject" />
-                <svg-icon class="dianbao" icon-class="telegram" style="margin-left: 10px" @click="gotoTgChannel" />
-              </div>
-              <div style="text-align: center; font-size: 20px;">订 阅 转 换</div>
-              <div style="position: absolute; right: 0; top: 0; display: flex; align-items: center; height: 100%; flex-direction: row-reverse;">
-                <svg-icon class="youguan" icon-class="youtube" style="margin-left: 10px" @click="gotoYouTuBe" />
-                <svg-icon class="channel" icon-class="telegram" style="margin-left: 10px" @click="gotoTgChannel" />
-              </div>
+          <div slot="header" style="position: relative;">
+            <div style="position: absolute; left: 0; top: 0; display: flex; align-items: center; height: 100%;">
+              <svg-icon class="gayhub" icon-class="github" @click="goToProject" />
+              <svg-icon class="dianbao" icon-class="telegram" style="margin-left: 10px" @click="gotoTgChannel" />
             </div>
-          </template>
+            <div style="text-align: center; font-size: 20px;">订 阅 转 换</div>
+            <div style="position: absolute; right: 0; top: 0; display: flex; align-items: center; height: 100%; flex-direction: row-reverse;">
+              <svg-icon class="youguan" icon-class="youtube" style="margin-left: 10px" @click="gotoYouTuBe" />
+              <svg-icon class="channel" icon-class="telegram" style="margin-left: 10px" @click="gotoTgChannel" />
+            </div>
+          </div>
           <el-container>
             <el-form :model="form" label-width="80px" label-position="left" style="width: 100%">
               <div class="subscription-tip">支持各种订阅链接或单节点链接，多个链接每行一个或用 | 分隔</div>
@@ -55,7 +53,7 @@
               <el-form-item label-width="0px" class="advanced-item">
                 <el-collapse>
                   <el-collapse-item>
-                    <template #title>
+                    <template slot="title">
                       <div style="display: flex; align-items: center; width: 100%;">
                         <div style="width: 80px; font-size: 14px; color: #606266; text-align: left;">高级功能:</div>
                         <div style="flex: 1; text-align: center;">
@@ -149,9 +147,7 @@
                             </el-col>
 
                           </el-row>
-                          <template #reference>
-                            <el-button>更多选项</el-button>
-                          </template>
+                          <el-button slot="reference">更多选项</el-button>
                         </el-popover>
                       </el-row>
                     </el-form-item>
@@ -159,34 +155,28 @@
                 </el-collapse>
               </el-form-item>
               <el-divider class="theme-toggle-divider" content-position="center">
-                <el-button class="el-button--theme" @click="toggleTheme" title="点击切换主题">
+                <el-button type="theme" @click="toggleTheme" title="点击切换主题">
                   <i id="rijian" class="el-icon-sunny"></i>
                   <i id="yejian" class="el-icon-moon"></i>
                 </el-button>
               </el-divider>
               <el-form-item label="定制订阅:">
                 <el-input class="copy-content" disabled v-model="customSubUrl">
-                  <template #append>
-                    <el-button @click="copyText(customSubUrl)" icon="el-icon-document-copy">复制</el-button>
-                  </template>
-                  <template #prepend>
-                    <el-button @click="openLink(customSubUrl)" icon="el-icon-link" v-if="customSubUrl">访问</el-button>
-                  </template>
+                  <el-button slot="append" v-clipboard:copy="customSubUrl" v-clipboard:success="onCopy" ref="copy-btn"
+                    icon="el-icon-document-copy">复制
+                  </el-button>
+                  <el-button slot="prepend" @click="openLink(customSubUrl)" icon="el-icon-link" v-if="customSubUrl">访问</el-button>
                 </el-input>
               </el-form-item>
               <el-form-item label="订阅短链:">
                 <el-input class="copy-content" v-model="customShortSubUrl" style="position: relative;">
-                  <template #suffix>
-                    <div style="color: #999; font-size: 12px; display: flex; align-items: center; height: 100%; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                      输入自定义短链接后缀，点击生成短链接可反复生成
-                    </div>
-                  </template>
-                  <template #append>
-                    <el-button @click="copyText(customShortSubUrl)" icon="el-icon-document-copy">复制</el-button>
-                  </template>
-                  <template #prepend>
-                    <el-button @click="openLink(customShortSubUrl)" icon="el-icon-link" v-if="customShortSubUrl">访问</el-button>
-                  </template>
+                  <div slot="suffix" style="color: #999; font-size: 12px; display: flex; align-items: center; height: 100%; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    输入自定义短链接后缀，点击生成短链接可反复生成
+                  </div>
+                  <el-button slot="append" v-clipboard:copy="customShortSubUrl" v-clipboard:success="onCopy"
+                    ref="copy-btn" icon="el-icon-document-copy">复制
+                  </el-button>
+                  <el-button slot="prepend" @click="openLink(customShortSubUrl)" icon="el-icon-link" v-if="customShortSubUrl">访问</el-button>
                 </el-input>
               </el-form-item>
               <el-form-item label="定制后缀:">
@@ -233,17 +223,17 @@
     </el-row>
     <el-dialog title="请选择需要观看的视频教程" :visible.sync="centerDialogVisible" :show-close="false" width="40vh" top="30vh"
       center>
-      <div style="text-align: center">
+      <div label-width="0px" style="text-align: center">
         <el-button style="width: 200px;" type="primary" icon="el-icon-video-play"
           @click="gotoBasicVideo(); centerDialogVisible = false">基础视频教程
         </el-button>
       </div>
-      <div style="text-align: center;margin: 3vh 0 2vh">
+      <div label-width="0px" style="text-align: center;margin: 3vh 0 2vh">
         <el-button style="width: 200px;" type="danger" icon="el-icon-video-play"
           @click="gotoAdvancedVideo(); centerDialogVisible = false">进阶视频教程
         </el-button>
       </div>
-      <div style="text-align: center;margin: 3vh 0 2vh">
+      <div label-width="0px" style="text-align: center;margin: 3vh 0 2vh">
         <el-button style="width: 200px;" type="warning" icon="el-icon-download" @click="toolsDown">代理工具集合
         </el-button>
       </div>
@@ -303,24 +293,20 @@
     </el-dialog>
     <el-dialog :visible.sync="dialogLoadConfigVisible" :show-close="false" :close-on-click-modal="false"
       :close-on-press-escape="false" width="80%">
-      <template #title>
-        <div>
-          可以从生成的长/短链接中解析信息,填入页面中去
-        </div>
-      </template>
+      <div slot="title">
+        可以从生成的长/短链接中解析信息,填入页面中去
+      </div>
       <el-form label-position="left">
         <el-form-item prop="uploadConfig">
           <el-input v-model="loadConfig" type="textarea" :autosize="{ minRows: 15, maxRows: 15 }" maxlength="5000"
             show-word-limit></el-input>
         </el-form-item>
       </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="loadConfig = ''; dialogLoadConfigVisible = false">取 消</el-button>
-          <el-button type="primary" @click="confirmLoadConfig" :disabled="loadConfig.length === 0">确 定
-          </el-button>
-        </div>
-      </template>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="loadConfig = ''; dialogLoadConfigVisible = false">取 消</el-button>
+        <el-button type="primary" @click="confirmLoadConfig" :disabled="loadConfig.length === 0">确 定
+        </el-button>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -338,6 +324,7 @@ const basicVideo = process.env.VUE_APP_BASIC_VIDEO
 const advancedVideo = process.env.VUE_APP_ADVANCED_VIDEO
 const tgBotLink = process.env.VUE_APP_BOT_LINK
 const yglink = process.env.VUE_APP_YOUTUBE_LINK
+const bzlink = process.env.VUE_APP_BILIBILI_LINK
 
 export default {
   data() {
@@ -348,7 +335,7 @@ export default {
       backendVersion: "",
       activeName: 'first',
       centerDialogVisible: false, // 视频弹窗控制
-      
+
       // 选项配置
       options: {
         clientTypes: {
@@ -819,7 +806,7 @@ export default {
       form: {
         sourceSubUrl: "",
         clientType: "",
-        customBackend: this.getUrlParam() === "" ? defaultBackend : this.getUrlParam(),
+        customBackend: this.getUrlParam() == "" ? defaultBackend : this.getUrlParam(),
         shortType: "https://short.wh8.xx.kg/short",
         customSlug: "",
         remoteConfig: "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online.ini",
@@ -991,7 +978,6 @@ export default {
         this.disabledOptions.new_name = true;
         this.disabledOptions.clash_doh = true;
         this.disabledOptions.surge_doh = true;
-        this.disabledOptions.singbox_ipv6 = true;
       } else if (client.includes('quanx') || client.includes('loon') || client.includes('surfboard') || client.includes('mellow')) {
         // 其他支持规则集的客户端
         this.form.expand = true;
@@ -1033,8 +1019,8 @@ export default {
       let query = window.location.search.substring(1);
       let vars = query.split('&');
       for (let i = 0; i < vars.length; i++) {
-        const pair = vars[i].split('=');
-        if (pair[0] === "backend") {
+        var pair = vars[i].split('=');
+        if (pair[0] == "backend") {
           return decodeURIComponent(pair[1]);
         }
       }
@@ -1064,7 +1050,7 @@ export default {
       }
     },
     toggleTheme() {
-      const zhuti = document.getElementsByTagName('body')[0].className;
+      var zhuti = document.getElementsByTagName('body')[0].className;
       if (zhuti === 'light-mode') {
         document.getElementsByTagName('body')[0].setAttribute('class', 'dark-mode');
         window.localStorage.setItem('localTheme', 'dark-mode');
@@ -1075,16 +1061,8 @@ export default {
       }
     },
 
-    copyText(text) {
-      if (!text) {
-        this.$message.warning("内容为空");
-        return;
-      }
-      this.$copyText(text).then(() => {
-        this.$message.success("已复制");
-      }, () => {
-        this.$message.error("复制失败，请手动复制");
-      });
+    onCopy() {
+      this.$message.success("已复制");
     },
     openLink(url) {
       if (url) {
@@ -1130,6 +1108,9 @@ export default {
     },
     gotoTgChannel() {
       window.open(tgBotLink);
+    },
+    gotoBiliBili() {
+      window.open(bzlink);
     },
     gotoYouTuBe() {
       window.open(yglink);
@@ -1235,16 +1216,16 @@ export default {
       if (this.form.includeRemarks) params.append("include", this.form.includeRemarks);
       if (this.form.filename) params.append("filename", this.form.filename);
       if (this.form.rename) params.append("rename", this.form.rename);
-      
+
       if (this.form.interval !== "") {
         params.append("interval", this.form.interval * 86400);
       }
-      
+
       if (this.form.devid) params.append("dev_id", this.form.devid);
       if (this.form.appendType) params.append("append_type", this.form.appendType);
       if (this.form.tls13) params.append("tls13", this.form.tls13);
       if (this.form.sort) params.append("sort", this.form.sort);
-      
+
       params.append("emoji", this.form.emoji);
       params.append("list", this.form.nodeList);
       params.append("xudp", this.form.xudp);
@@ -1269,6 +1250,21 @@ export default {
       this.$copyText(this.customSubUrl);
       this.$message.success("定制订阅已复制到剪贴板");
     },
+    parseCustomUrl(longUrl) {
+      try {
+        const url = new URL(longUrl);
+        const params = new URLSearchParams(url.search);
+        const encodedSource = params.get('url');
+        if (encodedSource) {
+          const decodedSource = decodeURIComponent(encodedSource);
+          return decodedSource.split('|').join('\n');
+        }
+        return "无法解析原始订阅";
+      } catch (e) {
+        return "无效的长链接格式";
+      }
+    },
+
     parseCustomUrlWithoutProxy(longUrl) {
       try {
         const url = new URL(longUrl);
@@ -1318,6 +1314,25 @@ export default {
 
       const shortenerRequest = (currentSlug, overwrite = false) => {
         self.loadingShortUrl = true;
+
+        // 创建一个函数来移除代理前缀，获取原始 URL
+        const removeProxyPrefix = (url) => {
+          const proxyPrefix = window.location.origin + '/api/proxy?url=';
+          if (url.startsWith(proxyPrefix)) {
+            return decodeURIComponent(url.substring(proxyPrefix.length));
+          }
+          return url;
+        };
+
+        // 提取原始 URL，去除代理前缀
+        let originalUrl = self.customSubUrl;
+        // 处理 | 分隔的多个 URL
+        if (originalUrl.includes('|')) {
+          const urls = originalUrl.split('|').map(u => removeProxyPrefix(u)).join('|');
+          originalUrl = urls;
+        } else {
+          originalUrl = removeProxyPrefix(originalUrl);
+        }
 
         if (self.form.shortType.includes("short.wh8.xx.kg")) {
           const createEndpoint = self.form.shortType; // 直接使用完整 URL
@@ -1853,7 +1868,7 @@ export default {
   font-size: 12px;
   color: #999;
   margin-left: 85px;
-  margin-bottom: 0;
+  margin-bottom: 0px;
   white-space: nowrap;
 }
 
@@ -1879,7 +1894,7 @@ export default {
 /* 分割线样式 (注意顺序：通用样式在前，特定样式在后以覆盖) */
 .el-divider--horizontal {
   margin-top: -8px !important;
-  margin-bottom: 0 !important;
+  margin-bottom: 0px !important;
 }
 
 .theme-toggle-divider {
