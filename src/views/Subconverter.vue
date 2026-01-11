@@ -1472,7 +1472,9 @@ export default {
                 });
               } else {
                 console.error("短链接获取失败:", error);
-                self.$message.error("短链接获取失败：" + (error.response?.data?.message || error.message || "未知错误"));
+                // 优先检查 Message (API标准)，其次 check message (通用)，最后 fallback
+                const errorMsg = error.response?.data?.Message || error.response?.data?.message || error.message || "未知错误";
+                self.$message.error("短链接获取失败：" + errorMsg);
                 self.loading1 = false;
               }
             })
@@ -1577,7 +1579,9 @@ export default {
         }
       } catch (error) {
         console.error('反查请求失败:', error);
-        this.$message.error('反查请求失败，请检查网络或短链服务是否支持反查');
+        // 优先检查 Message (API标准)，其次 check message (通用)
+        const errorMsg = error.response?.data?.Message || error.response?.data?.message || '反查请求失败，请检查网络或短链服务是否支持反查';
+        this.$message.error(errorMsg);
       } finally {
         this.loadingReverse = false;
       }
