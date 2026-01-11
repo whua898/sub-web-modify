@@ -155,7 +155,7 @@
                 </el-collapse>
               </el-form-item>
               <el-divider class="theme-toggle-divider" content-position="center">
-                <el-button type="zhuti" @click="change">
+                <el-button type="theme" @click="change" title="点击切换主题">
                   <i id="rijian" class="el-icon-sunny"></i>
                   <i id="yejian" class="el-icon-moon"></i>
                 </el-button>
@@ -1921,7 +1921,7 @@ export default {
 }
 
 /* 调整主题切换按钮中太阳和月亮图标的间距 */
-.el-button--zhuti {
+.el-button--theme {
   position: relative;
   width: 54px !important;
   height: 20px !important;
@@ -1931,8 +1931,8 @@ export default {
   justify-content: center;
 }
 
-.el-button--zhuti .el-icon-sunny,
-.el-button--zhuti .el-icon-moon {
+.el-button--theme .el-icon-sunny,
+.el-button--theme .el-icon-moon {
   position: static;
   margin: 0;
   display: inline-block;
