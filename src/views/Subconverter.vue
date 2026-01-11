@@ -1864,20 +1864,17 @@ export default {
 
 <style>
 /* ================================================= */
-/* Element UI 全局样式覆盖 */
+/* 1. Element UI 全局样式覆盖 (Global Overrides) */
 /* ================================================= */
 
-/* 调整 el-card 头部内边距，使其更紧凑 */
+/* 卡片样式调整 */
 .el-card__header {
   padding: 5px 20px !important;
 }
 
- /* 调整 el-card 主体内容内边距，控制底部空白 */
- .el-card__body {
-   /* 默认是 20px，减小此值可以让底部内容更靠近边框 */
-   padding-bottom: 5px !important;
- }
-
+.el-card__body {
+  padding-bottom: 5px !important;
+}
 
 /* 调整表单项间距 */
 .el-form-item--small,
@@ -1896,31 +1893,76 @@ export default {
   padding-right: 10px !important;
 }
 
+/* 折叠面板 (Collapse) 样式覆盖 - 用于高级功能 */
+.el-collapse {
+  border-top: none;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.el-collapse-item__header {
+  height: 35px;
+  line-height: 35px;
+  border-bottom: none;
+}
+
+.el-collapse-item__wrap {
+  border-bottom: none;
+}
+
+.el-collapse-item__header .el-form-item__label {
+  line-height: 35px;
+}
+
+.el-collapse-item__header .el-form-item__content {
+  line-height: 35px !important;
+  margin-left: 0 !important;
+}
+
 /* ================================================= */
-/* 订阅链接特殊布局样式 */
+/* 2. 页面特定组件样式 (Component Styles) */
 /* ================================================= */
 
-/* 提示信息：对齐标签，紧贴输入框 */
+/* 订阅链接区域 */
 .subscription-tip {
   font-size: 12px;
   color: #999;
-  margin-left: 85px; /* 80px label-width + 5px padding */
+  margin-left: 85px;
   margin-bottom: 0px;
   white-space: nowrap;
 }
 
-/* 订阅链接行：移除顶部间距以紧贴提示 */
 .subscription-link-row {
   margin-top: 0 !important;
   margin-bottom: 2px !important;
 }
 
-/* 调整订阅链接行的标签行高，使其对齐 */
 .subscription-link-row .el-form-item__label {
   line-height: 5px !important;
 }
 
-/* 调整主题切换按钮中太阳和月亮图标的间距 */
+.subscription-link-row .el-textarea__inner {
+  white-space: pre !important;
+  overflow-x: auto !important;
+}
+
+/* 高级功能区域 */
+.advanced-item {
+  margin-bottom: 0 !important;
+}
+
+/* 分割线样式 (注意顺序：通用样式在前，特定样式在后以覆盖) */
+.el-divider--horizontal {
+  margin-top: -8px !important;
+  margin-bottom: 0px !important;
+}
+
+.theme-toggle-divider {
+  margin-top: 5px !important;
+  margin-bottom: 15px !important;
+}
+
+/* 主题切换按钮 */
 .el-button--theme {
   position: relative;
   width: 54px !important;
@@ -1939,7 +1981,6 @@ export default {
   flex-shrink: 0;
 }
 
-/* 使两个图标重叠 */
 #rijian, #yejian {
   position: absolute;
   left: 50%;
@@ -1948,23 +1989,11 @@ export default {
   margin: 0 !important;
 }
 
-/* 调整主题切换按钮与上方元素的间距 */
-.el-divider--horizontal {
-  margin-top: -8px !important; /* 减小顶部间距 */
-  margin-bottom: 0px !important;
-}
-
-/* 订阅链接文本域：不自动换行，显示横向滚动条 */
-.subscription-link-row .el-textarea__inner {
-  white-space: pre !important;
-  overflow-x: auto !important;
-}
-
 /* ================================================= */
-/* 弹窗与确认框样式 */
+/* 3. 弹窗与对话框样式 (Dialogs & Modals) */
 /* ================================================= */
 
-/* 长链接确认框宽度调整 */
+/* 长链接确认框 */
 .long-url-confirm-box {
   width: 800px !important;
   max-width: 90% !important;
@@ -1977,7 +2006,7 @@ export default {
   overflow-y: auto;
 }
 
-/* URL 对比区域样式 */
+/* URL 对比区域 */
 .url-compare {
   background-color: #f5f5f5;
   padding: 10px;
@@ -1990,14 +2019,13 @@ export default {
   border: 1px solid #eee;
 }
 
-/* 暗色模式下的 URL 对比区域 */
 .dark-mode .url-compare {
   background-color: #2a2a2a;
   border-color: #444;
 }
 
 /* ================================================= */
-/* 其他辅助样式 */
+/* 4. 通用辅助样式 (Utilities) */
 /* ================================================= */
 
 .link-prepend {
@@ -2008,49 +2036,4 @@ export default {
   margin-top: 2px;
   text-align: right;
 }
-
-/* ================================================= */
-/* 修复高级功能开关与下方分割线的间距 */
-/* ================================================= */
-
-/* 移除 collapse 组件自带的边框 */
-.el-collapse {
-  border-top: none;
-  border-bottom: none;
-  margin-bottom: 0;
-}
-
-/* 减小折叠面板头部的高度 */
-.el-collapse-item__header {
-  height: 35px;
-  line-height: 35px;
-  border-bottom: none;
-}
-
-/* 调整折叠面板内容区域的边框 */
-.el-collapse-item__wrap {
-  border-bottom: none;
-}
-
-/* 调整折叠面板头部内的表单项标签行高，使其垂直居中 */
-.el-collapse-item__header .el-form-item__label {
-  line-height: 35px;
-}
-
-/* 调整主题切换按钮与相邻组件间距 */
-.theme-toggle-divider {
-  margin-top: 5px !important;
-  margin-bottom: 15px !important;
-}
-
-.advanced-item {
-  margin-bottom: 0 !important;
-}
-
-/* 修复高级功能标题对齐问题 */
-.el-collapse-item__header .el-form-item__content {
-  line-height: 35px !important;
-  margin-left: 0 !important;
-}
-
 </style>
