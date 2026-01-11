@@ -1141,6 +1141,50 @@ export default {
           window.open(advancedVideo);
         });
     },
+    processUrlForProxy(url, proxyUrl) {
+      if (!url.startsWith('http')) return url;
+
+      try {
+        const urlObj = new URL(url);
+        const isIpAddress = /^([0-9]{1,3}\.){3}[0-9]{1,3}$/.test(urlObj.hostname);
+        const parts = urlObj.hostname.split('.');
+        const isPrivateIP = isIpAddress && (
+          parts[0] === '10' ||
+          (parts[0] === '172' && parseInt(parts[1]) >= 16 && parseInt(parts[1]) <= 31) ||
+          (parts[0] === '192' && parts[1] === '168') ||
+          urlObj.hostname === 'localhost' ||
+          urlObj.hostname.startsWith('127.') ||
+          urlObj.hostname.startsWith('internal.')
+        );
+
+        const isKnownDirectDomain = urlObj.hostname.endsWith('.hf.space') ||
+                                  urlObj.hostname.endsWith('.github.com') ||
+                                  urlObj.hostname.endsWith('.github.io') ||
+                                  urlObj.hostname.includes('raw.githubusercontent.com') ||
+                                  urlObj.hostname.includes('jsdelivr.net');
+
+        const likelyUsesCdn = urlObj.hostname.includes('pages.dev') ||
+                            urlObj.hostname.includes('vercel.app') ||
+                            urlObj.hostname.includes('workers.dev') ||
+                            urlObj.hostname.includes('trycloudflare.com') ||
+                            urlObj.hostname.includes('netlify.app') ||
+                            urlObj.hostname.includes('firebaseapp.com');
+
+        if (isKnownDirectDomain) {
+          return url;
+        } else if (likelyUsesCdn) {
+          return proxyUrl + encodeURIComponent(url);
+        } else if (!isIpAddress && !isPrivateIP && !url.startsWith(proxyUrl)) {
+          return proxyUrl + encodeURIComponent(url);
+        }
+      } catch (e) {
+        console.error('URL 解析错误:', e);
+        if (!url.startsWith(proxyUrl)) {
+          return proxyUrl + encodeURIComponent(url);
+        }
+      }
+      return url;
+    },
     makeUrl() {
       if (this.form.sourceSubUrl === "" || this.form.clientType === "") {
         this.$message.error("订阅链接与客户端为必填项");
@@ -1150,168 +1194,59 @@ export default {
         this.form.customBackend === ""
           ? defaultBackend
           : this.form.customBackend;
-      let sourceSub = this.form.sourceSubUrl;
-      sourceSub = sourceSub.replace(/[\r\n]+/g, "|");
-
-      // 智能代理策略：自动检测需要代理的链接并应用代理
-      // 获取当前页面的 origin，例如 https://sub-wh.wh8.xx.kg
       const currentOrigin = window.location.origin;
       const proxyUrl = `${currentOrigin}/api/proxy?url=`;
-
-      // 将 sourceSub 中的每个链接都检查是否需要代理
-      // 主要针对可能被 Cloudflare 等 WAF 阻挡的域名，IP 地址形式的链接可以直接访问
-
-      // 先进行去重处理
       const uniqueUrls = new Set();
 
+      let sourceSub = this.form.sourceSubUrl.replace(/[\r\n]+/g, "|");
       sourceSub = sourceSub.split('|').filter(url => {
-        // 过滤空字符串
         if (!url || url.trim() === '') return false;
-
-        // 简单去重：如果已经存在，则过滤掉
         if (uniqueUrls.has(url)) return false;
-
         uniqueUrls.add(url);
         return true;
-      }).map(url => {
-        // 只处理 http/https 链接
-        if (url.startsWith('http')) {
-          try {
-            const urlObj = new URL(url);
-            // 检测是否为 IP 地址形式的域名
-            const isIpAddress = /^([0-9]{1,3}\.){3}[0-9]{1,3}$/.test(urlObj.hostname);
+      }).map(url => this.processUrlForProxy(url, proxyUrl)).join('|');
 
-            // 检查是否为私有 IP 地址段或本地地址
-            const parts = urlObj.hostname.split('.');
-            const isPrivateIP = isIpAddress && (
-              parts[0] === '10' ||
-              parts[0] === '172' && parseInt(parts[1]) >= 16 && parseInt(parts[1]) <= 31 ||
-              parts[0] === '192' && parts[1] === '168' ||
-              urlObj.hostname === 'localhost' ||
-              urlObj.hostname.startsWith('127.') ||
-              urlObj.hostname.startsWith('internal.')
-            );
+      const params = new URLSearchParams();
+      params.append("target", this.form.clientType);
+      params.append("url", sourceSub);
+      params.append("insert", this.form.insert);
 
-            // 检查是否为无需代理的常见域名（如 hf.space、GitHub 等可以直接访问的域名）
-            const isKnownDirectDomain = urlObj.hostname.endsWith('.hf.space') ||
-                                      urlObj.hostname.endsWith('.github.com') ||
-                                      urlObj.hostname.endsWith('.github.io') ||
-                                      urlObj.hostname.includes('raw.githubusercontent.com') ||
-                                      urlObj.hostname.includes('jsdelivr.net');
-
-            // 检查是否为已知的第三方托管平台域名（这些平台使用CDN/反向代理服务）
-            const likelyUsesCdn = urlObj.hostname.includes('pages.dev') ||
-                                urlObj.hostname.includes('vercel.app') ||
-                                urlObj.hostname.includes('workers.dev') ||
-                                urlObj.hostname.includes('trycloudflare.com') ||
-                                urlObj.hostname.includes('netlify.app') ||
-                                urlObj.hostname.includes('firebaseapp.com');
-
-            // 综合判断：如果已知可以直接访问，则不添加代理；如果是已知使用CDN的第三方平台或自定义域名，则添加代理
-            if (isKnownDirectDomain) {
-              // 已知可以直接访问的域名，不添加代理
-              return url;
-            } else if (likelyUsesCdn) {
-              // 已知使用CDN的第三方平台，添加代理
-              return proxyUrl + encodeURIComponent(url);
-            } else if (!isIpAddress && !isPrivateIP && !url.startsWith(proxyUrl)) {
-              // 对于自定义域名，目前仍使用代理，因为无法在发起请求前判断是否使用Cloudflare
-              // 理想情况下，应检查域名是否解析到Cloudflare IP范围或检查HTTP响应头
-              // 但在前端JavaScript中无法直接进行DNS查询，也无法预先知道响应头
-              return proxyUrl + encodeURIComponent(url);
-            }
-          } catch (e) {
-            console.error('URL 解析错误:', e);
-            // 解析失败时，仍然尝试代理访问
-            if (!url.startsWith(proxyUrl)) {
-              return proxyUrl + encodeURIComponent(url);
-            }
-          }
-        }
-        return url;
-      }).join('|');
-
-      this.customSubUrl =
-        backend +
-        "/sub?target=" +
-        this.form.clientType +
-        "&url=" +
-        encodeURIComponent(sourceSub) +
-        "&insert=" +
-        this.form.insert;
-      if (this.form.remoteConfig !== "") {
-        this.customSubUrl +=
-          "&config=" + encodeURIComponent(this.form.remoteConfig);
-      }
-      if (this.form.excludeRemarks !== "") {
-        this.customSubUrl +=
-          "&exclude=" + encodeURIComponent(this.form.excludeRemarks);
-      }
-      if (this.form.includeRemarks !== "") {
-        this.customSubUrl +=
-          "&include=" + encodeURIComponent(this.form.includeRemarks);
-      }
-      if (this.form.filename !== "") {
-        this.customSubUrl +=
-          "&filename=" + encodeURIComponent(this.form.filename);
-      }
-      if (this.form.rename !== "") {
-        this.customSubUrl +=
-          "&rename=" + encodeURIComponent(this.form.rename);
-      }
+      if (this.form.remoteConfig) params.append("config", this.form.remoteConfig);
+      if (this.form.excludeRemarks) params.append("exclude", this.form.excludeRemarks);
+      if (this.form.includeRemarks) params.append("include", this.form.includeRemarks);
+      if (this.form.filename) params.append("filename", this.form.filename);
+      if (this.form.rename) params.append("rename", this.form.rename);
+      
       if (this.form.interval !== "") {
-        this.customSubUrl +=
-          "&interval=" + encodeURIComponent(this.form.interval * 86400);
+        params.append("interval", this.form.interval * 86400);
       }
-      if (this.form.devid !== "") {
-        this.customSubUrl +=
-          "&dev_id=" + encodeURIComponent(this.form.devid);
-      }
-      if (this.form.appendType) {
-        this.customSubUrl +=
-          "&append_type=" + this.form.appendType.toString();
-      }
-      if (this.form.tls13) {
-        this.customSubUrl +=
-          "&tls13=" + this.form.tls13.toString();
-      }
-      if (this.form.sort) {
-        this.customSubUrl +=
-          "&sort=" + this.form.sort.toString();
-      }
-      this.customSubUrl +=
-        "&emoji=" +
-        this.form.emoji.toString() +
-        "&list=" +
-        this.form.nodeList.toString() +
-        "&xudp=" +
-        this.form.xudp.toString() +
-        "&udp=" +
-        this.form.udp.toString() +
-        "&tfo=" +
-        this.form.tfo.toString() +
-        "&expand=" +
-        this.form.expand.toString() +
-        "&scv=" +
-        this.form.scv.toString() +
-        "&fdn=" +
-        this.form.fdn.toString();
+      
+      if (this.form.devid) params.append("dev_id", this.form.devid);
+      if (this.form.appendType) params.append("append_type", this.form.appendType);
+      if (this.form.tls13) params.append("tls13", this.form.tls13);
+      if (this.form.sort) params.append("sort", this.form.sort);
+      
+      params.append("emoji", this.form.emoji);
+      params.append("list", this.form.nodeList);
+      params.append("xudp", this.form.xudp);
+      params.append("udp", this.form.udp);
+      params.append("tfo", this.form.tfo);
+      params.append("expand", this.form.expand);
+      params.append("scv", this.form.scv);
+      params.append("fdn", this.form.fdn);
+
       if (this.form.clientType.includes("surge")) {
-        if (this.form.tpl.surge.doh === true) {
-          this.customSubUrl += "&surge.doh=true";
-        }
+        if (this.form.tpl.surge.doh) params.append("surge.doh", "true");
       }
       if (this.form.clientType === "clash") {
-        if (this.form.tpl.clash.doh === true) {
-          this.customSubUrl += "&clash.doh=true";
-        }
-        this.customSubUrl += "&new_name=" + this.form.new_name.toString();
+        if (this.form.tpl.clash.doh) params.append("clash.doh", "true");
+        params.append("new_name", this.form.new_name);
       }
       if (this.form.clientType === "singbox") {
-        if (this.form.tpl.singbox.ipv6 === true) {
-          this.customSubUrl += "&singbox.ipv6=1";
-        }
+        if (this.form.tpl.singbox.ipv6) params.append("singbox.ipv6", "1");
       }
+
+      this.customSubUrl = `${backend}/sub?${params.toString()}`;
       this.$copyText(this.customSubUrl);
       this.$message.success("定制订阅已复制到剪贴板");
     },
