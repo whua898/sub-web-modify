@@ -155,7 +155,7 @@
                 </el-collapse>
               </el-form-item>
               <el-divider class="theme-toggle-divider" content-position="center">
-                <el-button type="theme" @click="change" title="点击切换主题">
+                <el-button type="theme" @click="toggleTheme" title="点击切换主题">
                   <i id="rijian" class="el-icon-sunny"></i>
                   <i id="yejian" class="el-icon-moon"></i>
                 </el-button>
@@ -196,16 +196,16 @@
                 <el-button style="width: 120px" type="danger" @click="makeUrl"
                   :disabled="form.sourceSubUrl.length === 0 || btnBoolean">生成订阅链接
                 </el-button>
-                <el-button style="width: 120px" type="danger" @click="makeShortUrl" :loading="loading1"
+                <el-button style="width: 120px" type="danger" @click="makeShortUrl" :loading="loadingShortUrl"
                   :disabled="customSubUrl.length === 0">生成短链接
                 </el-button>
               </el-form-item>
               <el-form-item label-width="0px" style="text-align: center">
                 <el-button style="width: 120px" type="primary" @click="dialogUploadConfigVisible = true"
-                  icon="el-icon-upload" :loading="loading2">自定义配置
+                  icon="el-icon-upload" :loading="loadingUpload">自定义配置
                 </el-button>
                 <el-button style="width: 120px" type="primary" @click="dialogLoadConfigVisible = true"
-                  icon="el-icon-copy-document" :loading="loading3">从URL解析
+                  icon="el-icon-copy-document" :loading="loadingLoad">从URL解析
                 </el-button>
               </el-form-item>
               <el-form-item label-width="0px" style="text-align: center">
@@ -859,9 +859,9 @@ export default {
         singbox_ipv6: false,
         tls13: false
       },
-      loading1: false,
-      loading2: false,
-      loading3: false,
+      loadingShortUrl: false,
+      loadingUpload: false,
+      loadingLoad: false,
       loadingReverse: false,
       loadingSync: false,
       customSubUrl: "",
@@ -903,6 +903,11 @@ export default {
       // 当后端地址变化时，也应该清空缓存
       this.customSubUrl = '';
       this.customShortSubUrl = '';
+    },
+    'form.remoteConfig'() {
+      // 当远程配置变化时，清空缓存，防止用户使用旧配置生成的链接
+      this.customSubUrl = '';
+      this.customShortSubUrl = '';
     }
   },
   created() {
@@ -912,14 +917,14 @@ export default {
   mounted() {
     this.form.clientType = "clash";
     this.getBackendVersion();
-    this.anhei();
+    this.initTheme();
     // 加载历史记录
     this.loadCustomSlugHistory();
     let lightMedia = window.matchMedia('(prefers-color-scheme: light)');
     let darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
     let callback = (e) => {
       if (e.matches) {
-        this.anhei();
+        this.initTheme();
       }
     };
     if (typeof darkMedia.addEventListener === 'function' || typeof lightMedia.addEventListener === 'function') {
@@ -1021,7 +1026,7 @@ export default {
       }
       return "";
     },
-    anhei() {
+    initTheme() {
       const getLocalTheme = window.localStorage.getItem("localTheme");
       const lightMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)');
       const darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
@@ -1044,7 +1049,7 @@ export default {
         }
       }
     },
-    change() {
+    toggleTheme() {
       var zhuti = document.getElementsByTagName('body')[0].className;
       if (zhuti === 'light-mode') {
         document.getElementsByTagName('body')[0].setAttribute('class', 'dark-mode');
@@ -1146,7 +1151,7 @@ export default {
           ? defaultBackend
           : this.form.customBackend;
       let sourceSub = this.form.sourceSubUrl;
-      sourceSub = sourceSub.replace(/(\n|\r|\n\r)/g, "|");
+      sourceSub = sourceSub.replace(/[\r\n]+/g, "|");
 
       // 智能代理策略：自动检测需要代理的链接并应用代理
       // 获取当前页面的 origin，例如 https://sub-wh.wh8.xx.kg
@@ -1373,7 +1378,7 @@ export default {
       const slug = self.form.customSlug.trim();
 
       const shortenerRequest = (currentSlug, overwrite = false) => {
-        self.loading1 = true;
+        self.loadingShortUrl = true;
 
         // 创建一个函数来移除代理前缀，获取原始 URL
         const removeProxyPrefix = (url) => {
@@ -1424,7 +1429,7 @@ export default {
               } else if (res.data && res.data.Code === 0 && res.data.Message) {
                 // API 返回错误信息
                 self.$message.error("短链接生成失败：" + res.data.Message);
-                self.loading1 = false;
+                self.loadingShortUrl = false;
               } else {
                 throw new Error("API返回格式不正确或无链接");
               }
@@ -1443,7 +1448,7 @@ export default {
                   self.customShortSubUrl = existingShortLink;
                   self.$copyText(existingShortLink);
                   self.$message.success("后缀已存在，已自动使用现有短链接");
-                  self.loading1 = false;
+                  self.loadingShortUrl = false;
                   // 仅当用户输入了自定义后缀时才保存到历史记录
                   if (currentSlug) {
                     self.saveCustomSlugToHistory(currentSlug);
@@ -1470,19 +1475,19 @@ export default {
                   shortenerRequest(currentSlug, true);
                 }).catch(() => {
                   self.$message({ type: 'info', message: '已取消操作' });
-                  self.loading1 = false;
+                  self.loadingShortUrl = false;
                 });
               } else {
                 console.error("短链接获取失败:", error);
                 // 优先检查 Message (API标准)，其次 check message (通用)，最后 fallback
                 const errorMsg = error.response?.data?.Message || error.response?.data?.message || error.message || "未知错误";
                 self.$message.error("短链接获取失败：" + errorMsg);
-                self.loading1 = false;
+                self.loadingShortUrl = false;
               }
             })
             .finally(() => {
-              if (self.loading1) {
-                self.loading1 = false;
+              if (self.loadingShortUrl) {
+                self.loadingShortUrl = false;
               }
             });
         }
@@ -1509,7 +1514,7 @@ export default {
               } else {
                 if (currentSlug) {
                   self.$message.error("自定义后缀 '" + currentSlug + "' 已被占用，请尝试其他后缀");
-                  self.loading1 = false;
+                  self.loadingShortUrl = false;
                 } else {
                   self.$message.error("短链接获取失败：" + res.data.Message);
                 }
@@ -1519,7 +1524,7 @@ export default {
               self.$message.error("短链接获取失败");
             })
             .finally(() => {
-              self.loading1 = false;
+              self.loadingShortUrl = false;
             });
         }
       };
@@ -1619,7 +1624,7 @@ export default {
     },
 
     confirmUploadConfig() {
-      this.loading2 = true;
+      this.loadingUpload = true;
       let data = new FormData();
       data.append("config", encodeURIComponent(this.uploadConfig));
       this.$axios
@@ -1644,14 +1649,14 @@ export default {
           this.$message.error("远程配置上传失败");
         })
         .finally(() => {
-          this.loading2 = false;
+          this.loadingUpload = false;
         });
     },
     analyzeUrl() {
       if (this.loadConfig.indexOf("target") !== -1) {
         return this.loadConfig;
       } else {
-        this.loading3 = true;
+        this.loadingLoad = true;
         return (async () => {
           try {
             let response = await fetch(this.loadConfig, {
@@ -1662,7 +1667,7 @@ export default {
           } catch (e) {
             this.$message.error("解析短链接失败，请检查短链接服务端是否配置跨域：" + e)
           } finally {
-            this.loading3 = false;
+            this.loadingLoad = false;
           }
         })();
       }
@@ -1828,7 +1833,7 @@ export default {
         this.$message.error("订阅链接不能为空");
         return false;
       }
-      this.loading2 = true;
+      this.loadingUpload = true;
       let data = this.renderPost();
       data.append("sortscript", encodeURIComponent(this.uploadScript));
       data.append("filterscript", encodeURIComponent(this.uploadFilter));
@@ -1855,7 +1860,7 @@ export default {
           this.$message.error("自定义JS上传失败");
         })
         .finally(() => {
-          this.loading2 = false;
+          this.loadingUpload = false;
         })
     },
   }
