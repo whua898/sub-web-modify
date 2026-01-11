@@ -57,7 +57,7 @@
                       <div style="display: flex; align-items: center; width: 100%;">
                         <div style="width: 80px; font-size: 14px; color: #606266; text-align: left;">高级功能:</div>
                         <div style="flex: 1; text-align: center;">
-                          <el-button type="text" style="font-size: 15px; padding-right: 80px;">点击展开/收起</el-button>
+                          <el-button type="text" style="font-size: 14px; padding-right: 80px;">点击展开/收起</el-button>
                         </div>
                       </div>
                     </template>
