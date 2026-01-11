@@ -132,6 +132,68 @@ A: 在“定制后缀”输入框中输入您之前生成的短链后缀（例�
 | V2Ray | 全平台 | ✅ |
 | Sing-Box | 全平台 | ✅ |
 
+## 📚 短链服务 API 说明
+
+本项目适配了 `short.wh8.xx.kg` 的短链 API，支持 JSON 格式交互、冲突检测与覆盖、以及反查功能。
+
+### 1. 创建短链 `POST /short`
+用于创建或获取短链接。兼容 v1.mk (MyUrls) 协议。
+
+- **请求方式**: JSON (推荐)
+- **Content-Type**: `application/json`
+- **Body**:
+  ```json
+  {
+    "url": "https://example.com/your-long-url",
+    "slug": "custom-name", // (可选) 自定义短链名
+    "overwrite": false     // (可选) 是否覆盖已存在的短链
+  }
+  ```
+- **响应**:
+  - 成功: `{ "Code": 1, "ShortUrl": "..." }`
+  - 冲突 (409): `{ "Code": 0, "Message": "Slug already exists", "existingUrl": "..." }`
+
+### 2. 反查长链 `POST /query`
+用于通过 slug 查询对应的原始长链接。
+
+- **Content-Type**: `application/json`
+- **Body**: `{ "slug": "custom-name" }`
+- **响应**:
+  - 成功: `{ "Code": 1, "Slug": "...", "LongUrl": "...", "CreateTime": "..." }`
+  - 未找到: `{ "Code": 0, "Message": "Slug not found" }`
+
+### 3. 获取自定义列表 `GET /list`
+获取所有自定义生成的短链列表。
+
+- **响应**:
+  ```json
+  {
+    "Code": 1,
+    "Data": [
+      { "slug": "custom1", "url": "..." },
+      { "slug": "custom2", "url": "..." }
+    ]
+  }
+  ```
+
+## 📂 项目结构说明
+
+本项目包含前端界面与后端 Serverless Functions (Cloudflare Pages)。
+
+### 前端 (Vue.js)
+- `src/views/Subconverter.vue`: 核心页面，包含订阅转换表单、短链生成逻辑、反查逻辑等。
+- `src/plugins/base64.js`: Base64 编码/解码工具。
+- `.env`: 环境变量配置文件。
+
+### 后端 (Cloudflare Pages Functions)
+位于 `functions/` 目录下：
+
+- `functions/short.js`: 处理短链生成 (`/short`)，支持 JSON 和 FormData，包含覆盖逻辑。
+- `functions/query.js`: 处理短链反查 (`/query`)。
+- `functions/list.js`: 获取自定义短链列表 (`/list`)。
+- `functions/[id].js`: 处理短链跳转重定向。
+- `functions/api/proxy.js`: 通用 CORS 代理，用于解决部分订阅源跨域或被墙问题。
+
 ## 🤝 贡献指南
 
 欢迎提交 Issue 和 Pull Request 来帮助改进项目！

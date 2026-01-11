@@ -57,7 +57,7 @@
                       <div style="display: flex; align-items: center; width: 100%;">
                         <div style="width: 80px; font-size: 14px; color: #606266; text-align: left;">高级功能:</div>
                         <div style="flex: 1; text-align: center;">
-                          <el-button type="text" style="font-size: 14px; padding-right: 80px;">点击展开/收起</el-button>
+                          <el-button type="text" style="font-size: 15px; padding-right: 80px;">点击展开/收起</el-button>
                         </div>
                       </div>
                     </template>
@@ -189,6 +189,7 @@
                     :value="item">
                   </el-option>
                 </el-select>
+                <el-button type="info" @click="syncHistory" :loading="loadingSync" icon="el-icon-refresh" circle style="margin-left: 5px; padding: 8px;" title="同步云端历史"></el-button>
                 <el-button type="primary" @click="reverseLookup" :loading="loadingReverse" style="margin-left: 10px;">反查</el-button>
               </el-form-item>
               <el-form-item label-width="0px" style="margin-top: 5px; text-align: center">
@@ -862,6 +863,7 @@ export default {
       loading2: false,
       loading3: false,
       loadingReverse: false,
+      loadingSync: false,
       customSubUrl: "",
       customShortSubUrl: "",
       customSlugHistory: [], // 存储历史定制后缀
@@ -1523,6 +1525,35 @@ export default {
       };
 
       shortenerRequest(slug);
+    },
+
+    async syncHistory() {
+      let shortenerBaseUrl = this.form.shortType;
+      // 移除结尾的 /short
+      if (shortenerBaseUrl.endsWith('/short')) {
+        shortenerBaseUrl = shortenerBaseUrl.slice(0, -6);
+      }
+      const listUrl = `${shortenerBaseUrl}/list`;
+
+      this.loadingSync = true;
+
+      try {
+        const res = await this.$axios.get(listUrl);
+        if (res.data && res.data.Code === 1 && Array.isArray(res.data.Data)) {
+          const remoteSlugs = res.data.Data.map(item => item.slug);
+          // 合并本地和远程历史，并去重
+          const newHistory = [...new Set([...remoteSlugs, ...this.customSlugHistory])];
+          this.customSlugHistory = newHistory.slice(0, 100); // 限制保留最近100条
+          localStorage.setItem('customSlugHistory', JSON.stringify(this.customSlugHistory));
+          this.$message.success('历史记录同步成功，已更新下拉列表');
+        } else {
+          this.$message.warning('同步失败：服务端未返回有效列表');
+        }
+      } catch (e) {
+        this.$message.error('同步失败，该短链服务可能不支持列表获取');
+      } finally {
+        this.loadingSync = false;
+      }
     },
 
     async reverseLookup() {
