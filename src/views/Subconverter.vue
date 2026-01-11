@@ -87,63 +87,63 @@
                         <el-popover placement="bottom" v-model="form.extraset">
                           <el-row :gutter="10">
                             <el-col :span="12">
-                              <el-checkbox v-model="form.emoji" label="Emoji"></el-checkbox>
+                              <el-checkbox v-model="form.emoji" label="Emoji" :disabled="disabledOptions.emoji"></el-checkbox>
                             </el-col>
                             <el-col :span="12">
-                              <el-checkbox v-model="form.insert" label="插入默认节点"></el-checkbox>
-                            </el-col>
-                          </el-row>
-                          <el-row :gutter="10">
-                            <el-col :span="12">
-                              <el-checkbox v-model="form.udp" label="启用 UDP"></el-checkbox>
-                            </el-col>
-                            <el-col :span="12">
-                              <el-checkbox v-model="form.xudp" label="启用 XUDP"></el-checkbox>
+                              <el-checkbox v-model="form.insert" label="插入默认节点" :disabled="disabledOptions.insert"></el-checkbox>
                             </el-col>
                           </el-row>
                           <el-row :gutter="10">
                             <el-col :span="12">
-                              <el-checkbox v-model="form.tfo" label="启用 TFO"></el-checkbox>
+                              <el-checkbox v-model="form.udp" label="启用 UDP" :disabled="disabledOptions.udp"></el-checkbox>
                             </el-col>
                             <el-col :span="12">
-                              <el-checkbox v-model="form.sort" label="基础节点排序"></el-checkbox>
-                            </el-col>
-                          </el-row>
-                          <el-row :gutter="10">
-                            <el-col :span="12">
-                              <el-checkbox v-model="form.tpl.clash.doh" label="Clash.DoH"></el-checkbox>
-                            </el-col>
-                            <el-col :span="12">
-                              <el-checkbox v-model="form.appendType" label="插入节点类型"></el-checkbox>
+                              <el-checkbox v-model="form.xudp" label="启用 XUDP" :disabled="disabledOptions.xudp"></el-checkbox>
                             </el-col>
                           </el-row>
                           <el-row :gutter="10">
                             <el-col :span="12">
-                              <el-checkbox v-model="form.tpl.surge.doh" label="Surge.DoH"></el-checkbox>
+                              <el-checkbox v-model="form.tfo" label="启用 TFO" :disabled="disabledOptions.tfo"></el-checkbox>
                             </el-col>
                             <el-col :span="12">
-                              <el-checkbox v-model="form.tls13" label="开启TLS_1.3"></el-checkbox>
-                            </el-col>
-                          </el-row>
-                          <el-row :gutter="10">
-                            <el-col :span="12">
-                              <el-checkbox v-model="form.expand" label="展开规则全文"></el-checkbox>
-                            </el-col>
-                            <el-col :span="12">
-                              <el-checkbox v-model="form.new_name" label="Clash新字段名"></el-checkbox>
+                              <el-checkbox v-model="form.sort" label="基础节点排序" :disabled="disabledOptions.sort"></el-checkbox>
                             </el-col>
                           </el-row>
                           <el-row :gutter="10">
                             <el-col :span="12">
-                              <el-checkbox v-model="form.scv" label="跳过证书验证"></el-checkbox>
+                              <el-checkbox v-model="form.tpl.clash.doh" label="Clash.DoH" :disabled="disabledOptions.clash_doh"></el-checkbox>
                             </el-col>
                             <el-col :span="12">
-                              <el-checkbox v-model="form.fdn" label="过滤不支持节点"></el-checkbox>
+                              <el-checkbox v-model="form.appendType" label="插入节点类型" :disabled="disabledOptions.appendType"></el-checkbox>
                             </el-col>
                           </el-row>
                           <el-row :gutter="10">
                             <el-col :span="12">
-                              <el-checkbox v-model="form.tpl.singbox.ipv6" label="Sing-Box支持IPV6"></el-checkbox>
+                              <el-checkbox v-model="form.tpl.surge.doh" label="Surge.DoH" :disabled="disabledOptions.surge_doh"></el-checkbox>
+                            </el-col>
+                            <el-col :span="12">
+                              <el-checkbox v-model="form.tls13" label="开启TLS_1.3" :disabled="disabledOptions.tls13"></el-checkbox>
+                            </el-col>
+                          </el-row>
+                          <el-row :gutter="10">
+                            <el-col :span="12">
+                              <el-checkbox v-model="form.expand" label="展开规则全文" :disabled="disabledOptions.expand"></el-checkbox>
+                            </el-col>
+                            <el-col :span="12">
+                              <el-checkbox v-model="form.new_name" label="Clash新字段名" :disabled="disabledOptions.new_name"></el-checkbox>
+                            </el-col>
+                          </el-row>
+                          <el-row :gutter="10">
+                            <el-col :span="12">
+                              <el-checkbox v-model="form.scv" label="跳过证书验证" :disabled="disabledOptions.scv"></el-checkbox>
+                            </el-col>
+                            <el-col :span="12">
+                              <el-checkbox v-model="form.fdn" label="过滤不支持节点" :disabled="disabledOptions.fdn"></el-checkbox>
+                            </el-col>
+                          </el-row>
+                          <el-row :gutter="10">
+                            <el-col :span="12">
+                              <el-checkbox v-model="form.tpl.singbox.ipv6" label="Sing-Box支持IPV6" :disabled="disabledOptions.singbox_ipv6"></el-checkbox>
                             </el-col>
 
                           </el-row>
@@ -841,6 +841,23 @@ export default {
           }
         }
       },
+      disabledOptions: {
+        emoji: false,
+        insert: false,
+        udp: false,
+        xudp: false,
+        tfo: false,
+        sort: false,
+        expand: false,
+        new_name: false,
+        scv: false,
+        fdn: false,
+        appendType: false,
+        clash_doh: false,
+        surge_doh: false,
+        singbox_ipv6: false,
+        tls13: false
+      },
       loading1: false,
       loading2: false,
       loading3: false,
@@ -878,6 +895,7 @@ export default {
       // 当客户端类型变化时，也应该清空缓存
       this.customSubUrl = '';
       this.customShortSubUrl = '';
+      this.updateOptionsBasedOnClient();
     },
     'form.customBackend'() {
       // 当后端地址变化时，也应该清空缓存
@@ -908,6 +926,70 @@ export default {
     } //监听系统主题，自动切换！
   },
   methods: {
+    updateOptionsBasedOnClient() {
+      const client = this.form.clientType;
+
+      // 1. 重置所有选项为默认推荐配置
+      this.form.emoji = true;
+      this.form.insert = true;
+      this.form.udp = true;
+      this.form.xudp = false;
+      this.form.tfo = false;
+      this.form.sort = false;
+      this.form.tls13 = false;
+      this.form.scv = false;
+      this.form.fdn = true;
+      this.form.appendType = false;
+
+      // 2. 重置所有禁用状态
+      Object.keys(this.disabledOptions).forEach(key => {
+        this.disabledOptions[key] = false;
+      });
+
+      // 3. 根据客户端类型应用特定逻辑
+      if (client.includes('clash')) {
+        // Clash 系
+        this.form.new_name = true;
+        this.form.expand = true;
+        this.form.tpl.clash.doh = false;
+
+        this.disabledOptions.surge_doh = true;
+        this.disabledOptions.singbox_ipv6 = true;
+      } else if (client.includes('surge')) {
+        // Surge 系
+        this.form.expand = true;
+        this.form.tpl.surge.doh = false;
+
+        this.disabledOptions.new_name = true;
+        this.disabledOptions.clash_doh = true;
+        this.disabledOptions.singbox_ipv6 = true;
+      } else if (client.includes('singbox')) {
+        // Sing-Box
+        this.form.expand = true;
+        this.form.tpl.singbox.ipv6 = false;
+
+        this.disabledOptions.new_name = true;
+        this.disabledOptions.clash_doh = true;
+        this.disabledOptions.surge_doh = true;
+      } else if (client.includes('quanx') || client.includes('loon') || client.includes('surfboard') || client.includes('mellow')) {
+        // 其他支持规则集的客户端
+        this.form.expand = true;
+
+        this.disabledOptions.new_name = true;
+        this.disabledOptions.clash_doh = true;
+        this.disabledOptions.surge_doh = true;
+        this.disabledOptions.singbox_ipv6 = true;
+      } else {
+        // 纯节点列表 (SS, V2Ray, Mixed, etc)
+        this.form.expand = false;
+        this.disabledOptions.expand = true; // 纯节点列表不支持展开规则
+
+        this.disabledOptions.new_name = true;
+        this.disabledOptions.clash_doh = true;
+        this.disabledOptions.surge_doh = true;
+        this.disabledOptions.singbox_ipv6 = true;
+      }
+    },
     selectChanged() {
       this.getBackendVersion();
     },
