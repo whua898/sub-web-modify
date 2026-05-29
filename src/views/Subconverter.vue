@@ -1494,8 +1494,6 @@ export default {
 
       // 1. 确定 Query API 地址
       let shortenerBaseUrl = this.form.shortType;
-      // 保存当前的shortType,反查后恢复
-      const currentShortType = this.form.shortType;
       // 移除结尾的 /short
       if (shortenerBaseUrl.endsWith('/short')) {
         shortenerBaseUrl = shortenerBaseUrl.slice(0, -6);
@@ -1530,18 +1528,6 @@ export default {
             this.$nextTick(() => {
                 this.customShortSubUrl = shortLink;
                 this.customSubUrl = longUrl;
-                
-                // 恢复shortType和后端地址
-                this.form.shortType = currentShortType;
-                
-                // 智能匹配后端地址:如果长链接的origin在customBackend选项中,则使用它
-                const urlOrigin = urlObj.origin;
-                const backendOptions = Object.values(this.options.customBackend);
-                if (backendOptions.includes(urlOrigin)) {
-                    this.form.customBackend = urlOrigin;
-                }
-                // 否则保留用户当前设置,不覆盖
-                
                 this.$message.success('反查成功，已填充到对应位置');
             });
 
@@ -1608,11 +1594,26 @@ export default {
       }
     },
     parseUrlParams(url) {
-      // 不要覆盖customBackend和shortType,反查时应保留用户当前配置
-      // this.form.customBackend = url.origin  // ← 删除这行!
+      // 标记是否有有效数据
+      let hasValidData = false;
       
       let param = new URLSearchParams(url.search);
-      if (param.get("target")) {
+      
+      // 检查是否有subconverter标准参数
+      const hasTarget = param.get("target");
+      const hasUrl = param.get("url");
+      
+      if (hasTarget || hasUrl) {
+        hasValidData = true;
+      }
+      
+      // 只有当长链接包含subconverter参数时,才填充后端地址
+      if (hasValidData) {
+        this.form.customBackend = url.origin;
+      } else {
+        this.form.customBackend = "";
+      }
+      if (hasTarget) {
         let target = param.get("target");
         if (target === 'surge' && param.get("ver")) {
           // 类型为surge,有ver
@@ -1624,8 +1625,11 @@ export default {
           //类型为其他
           this.form.clientType = target;
         }
+      } else if (!hasValidData) {
+        this.form.clientType = "";
       }
-      if (param.get("url")) {
+      
+      if (hasUrl) {
         let source = param.get("url");
         try {
             // 尝试解码，应对可能的双重编码
@@ -1654,30 +1658,46 @@ export default {
         }).join('\n');
 
         this.form.sourceSubUrl = source;
+      } else if (!hasValidData) {
+        this.form.sourceSubUrl = "";
       }
       if (param.get("insert")) {
         this.form.insert = param.get("insert") === 'true';
       }
       if (param.get("config")) {
         this.form.remoteConfig = param.get("config");
+      } else if (!hasValidData) {
+        this.form.remoteConfig = "";
       }
       if (param.get("exclude")) {
         this.form.excludeRemarks = param.get("exclude");
+      } else if (!hasValidData) {
+        this.form.excludeRemarks = "";
       }
       if (param.get("include")) {
         this.form.includeRemarks = param.get("include");
+      } else if (!hasValidData) {
+        this.form.includeRemarks = "";
       }
       if (param.get("filename")) {
         this.form.filename = param.get("filename");
+      } else if (!hasValidData) {
+        this.form.filename = "";
       }
       if (param.get("rename")) {
         this.form.rename = param.get("rename");
+      } else if (!hasValidData) {
+        this.form.rename = "";
       }
       if (param.get("interval")) {
         this.form.interval = Math.ceil(param.get("interval") / 86400);
+      } else if (!hasValidData) {
+        this.form.interval = "";
       }
       if (param.get("dev_id")) {
         this.form.devid = param.get("dev_id");
+      } else if (!hasValidData) {
+        this.form.devid = "";
       }
       if (param.get("append_type")) {
         this.form.appendType = param.get("append_type") === 'true';
