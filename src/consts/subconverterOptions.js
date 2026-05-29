@@ -21,7 +21,7 @@ export const clientTypes = {
 };
 
 export const shortTypes = {
-  "short.wh8.xx.kg": "https://short.wh8.xx.kg/short",
+  "short.8dy.xx.kg": "https://short.8dy.xx.kg/short",
   "v1.mk": "https://v1.mk/short",
   "d1.mk": "https://d1.mk/short",
   "dlj.tf": "https://dlj.tf/short",

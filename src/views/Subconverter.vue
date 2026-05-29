@@ -373,7 +373,7 @@ export default {
           "自动判断客户端": "auto",
         },
         shortTypes: {
-          "short.wh8.xx.kg": "https://short.wh8.xx.kg/short",
+          "short.8dy.xx.kg": "https://short.8dy.xx.kg/short",
           "v1.mk": "https://v1.mk/short",
           "d1.mk": "https://d1.mk/short",
           "dlj.tf": "https://dlj.tf/short",
@@ -820,7 +820,7 @@ export default {
         sourceSubUrl: "",
         clientType: "",
         customBackend: this.getUrlParam() === "" ? defaultBackend : this.getUrlParam(),
-        shortType: "https://short.wh8.xx.kg/short",
+        shortType: "https://short.8dy.xx.kg/short",
         customSlug: "",
         remoteConfig: "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online.ini",
         excludeRemarks: "",
@@ -1319,7 +1319,7 @@ export default {
       const shortenerRequest = (currentSlug, overwrite = false) => {
         self.loadingShortUrl = true;
 
-        if (self.form.shortType.includes("short.wh8.xx.kg")) {
+        if (self.form.shortType.includes("short.8dy.xx.kg")) {
           const createEndpoint = self.form.shortType; // 直接使用完整 URL
 
           let requestBody = {
@@ -1336,7 +1336,7 @@ export default {
               headers: { "Content-Type": "application/json" }
             })
             .then(res => {
-              if (res.data && res.data.Code === 1 && (res.data.ShortUrl || res.data.link)) { // 符合 short.wh8.xx.kg API 格式，支持 ShortUrl 或 link 字段
+              if (res.data && res.data.Code === 1 && (res.data.ShortUrl || res.data.link)) { // 符合 short.8dy.xx.kg API 格式，支持 ShortUrl 或 link 字段
                 // 优先使用 link 字段，如果不存在则使用 ShortUrl 字段
                 const shortUrl = res.data.link || res.data.ShortUrl;
                 self.customShortSubUrl = shortUrl;
