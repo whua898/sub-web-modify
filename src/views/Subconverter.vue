@@ -1193,7 +1193,8 @@ export default {
           return url;
         } else if (likelyUsesCdn) {
           return proxyUrl + encodeURIComponent(url);
-        } else if (!isIpAddress && !isPrivateIP && !url.startsWith(proxyUrl)) {
+        } else if (!isPrivateIP && !url.startsWith(proxyUrl)) {
+          // IP地址也需要走代理，因为后端服务器无法直接访问
           return proxyUrl + encodeURIComponent(url);
         }
       } catch (e) {
