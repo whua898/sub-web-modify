@@ -5,8 +5,9 @@
   <p>基于 Vue.js 开发的现代化订阅转换 Web 前端</p>
   
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [![Node.js Version](https://img.shields.io/badge/node-%3E%3D%2018-brightgreen)](https://nodejs.org/)
+  [![Node.js Version](https://img.shields.io/badge/node-%3E%3D%2020-brightgreen)](https://nodejs.org/)
   [![Vue Version](https://img.shields.io/badge/vue-2.7.16-green)](https://vuejs.org/)
+  [![Docker](https://img.shields.io/badge/docker-automated-blue)](https://github.com/whua898/sub-web-modify/actions)
 </div>
 
 ## 📖 项目简介
@@ -25,9 +26,11 @@ Sub-Web-Modify 是基于 [CareyWang/sub-web](https://github.com/CareyWang/sub-we
 - 🧩 **兼容多种短链服务** - 支持不同 API 格式的短链服务，包括 Cloudflare Pages 自建短链
 - 🛡️ **Cloudflare 代理** - 内置代理功能，可智能解决部分订阅源被墙无法访问、解析的问题（如托管在CloudFlare等第三方平台上的域名）
 - 📝 **自定义短链后缀** - 支持指定短链接后缀，并提供智能的冲突检测和覆盖确认
-- 📜 **后缀历史记录** - 自动记录最近使用的自定义短链后缀，方便快速复用
+-  **后缀历史记录** - 自动记录最近使用的自定义短链后缀，方便快速复用
 - 🔄 **智能反查功能** - 支持通过短链后缀反查原始订阅配置，自动解析并填充所有参数，方便二次编辑
 - 📥 **URL 解析导入** - 支持从已有的长/短订阅链接中解析参数并填入页面，快速还原配置
+- 💾 **智能缓存** - 自动保存表单数据，刷新页面不丢失，支持24小时缓存有效期
+- 🚀 **自动化构建** - GitHub Actions自动构建Docker镜像，支持缓存加速，Node.js 24兼容
 
 ## 🖥️ 界面预览
 
@@ -105,6 +108,10 @@ VUE_APP_SUBCONVERTER_DEFAULT_BACKEND=https://your-backend-url.com
 # 默认的短链接服务地址（注意：必须包含 /short 后缀）
 VUE_APP_MYURLS_DEFAULT_BACKEND=https://your-short-url-service.com/short
 
+# 缓存配置
+VUE_APP_USE_STORAGE = true          # 启用localStorage存储表单数据
+VUE_APP_CACHE_TTL = 86400           # 缓存有效期(秒)，默认24小时
+
 # 其他链接...
 ```
 
@@ -134,7 +141,7 @@ A: 在“定制后缀”输入框中输入您之前生成的短链后缀（例�
 
 ## 📚 短链服务 API 说明
 
-本项目适配了 `short.wh8.xx.kg` 的短链 API，支持 JSON 格式交互、冲突检测与覆盖、以及反查功能。
+本项目适配了 `short.8dy.xx.kg` 的短链 API，支持 JSON 格式交互、冲突检测与覆盖、以及反查功能。
 
 ### 1. 创建短链 `POST /short`
 用于创建或获取短链接。兼容 v1.mk (MyUrls) 协议。
