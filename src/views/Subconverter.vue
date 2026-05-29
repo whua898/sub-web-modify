@@ -1494,6 +1494,8 @@ export default {
 
       // 1. 确定 Query API 地址
       let shortenerBaseUrl = this.form.shortType;
+      // 保存当前的shortType,反查后恢复
+      const currentShortType = this.form.shortType;
       // 移除结尾的 /short
       if (shortenerBaseUrl.endsWith('/short')) {
         shortenerBaseUrl = shortenerBaseUrl.slice(0, -6);
@@ -1528,6 +1530,18 @@ export default {
             this.$nextTick(() => {
                 this.customShortSubUrl = shortLink;
                 this.customSubUrl = longUrl;
+                
+                // 恢复shortType和后端地址
+                this.form.shortType = currentShortType;
+                
+                // 智能匹配后端地址:如果长链接的origin在customBackend选项中,则使用它
+                const urlOrigin = urlObj.origin;
+                const backendOptions = Object.values(this.options.customBackend);
+                if (backendOptions.includes(urlOrigin)) {
+                    this.form.customBackend = urlOrigin;
+                }
+                // 否则保留用户当前设置,不覆盖
+                
                 this.$message.success('反查成功，已填充到对应位置');
             });
 
@@ -1594,7 +1608,9 @@ export default {
       }
     },
     parseUrlParams(url) {
-      this.form.customBackend = url.origin
+      // 不要覆盖customBackend和shortType,反查时应保留用户当前配置
+      // this.form.customBackend = url.origin  // ← 删除这行!
+      
       let param = new URLSearchParams(url.search);
       if (param.get("target")) {
         let target = param.get("target");
