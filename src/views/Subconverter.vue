@@ -36,14 +36,6 @@
                 <el-select v-model="form.customBackend" allow-create filterable @change="selectChanged"
                   placeholder="可输入自己的后端" style="width: 100%">
                   <el-option v-for="(v, k) in options.customBackend" :key="k" :label="k" :value="v"></el-option>
-                  <el-option-group v-if="customBackendHistory.length > 0" label="历史自建后端">
-                    <el-option 
-                      v-for="(backend, index) in customBackendHistory" 
-                      :key="'history-' + index" 
-                      :label="backend" 
-                      :value="backend">
-                    </el-option>
-                  </el-option-group>
                 </el-select>
               </el-form-item>
               <el-form-item label="短链选择:">
@@ -889,7 +881,6 @@ export default {
       customSubUrl: "",
       customShortSubUrl: "",
       customSlugHistory: [], // 存储历史定制后缀
-      customBackendHistory: [], // 存储历史自建后端地址
       dialogUploadConfigVisible: false,
       loadConfig: "",
       dialogLoadConfigVisible: false,
@@ -926,8 +917,6 @@ export default {
       // 当后端地址变化时，也应该清空缓存
       this.customSubUrl = '';
       this.customShortSubUrl = '';
-      // 保存自建后端到历史记录
-      this.saveCustomBackendToHistory(this.form.customBackend);
     },
     'form.remoteConfig'() {
       // 当远程配置变化时，清空缓存，防止用户使用旧配置生成的链接
@@ -945,7 +934,6 @@ export default {
     this.initTheme();
     // 加载历史记录
     this.loadCustomSlugHistory();
-    this.loadCustomBackendHistory();
     let lightMedia = window.matchMedia('(prefers-color-scheme: light)');
     let darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
     let callback = (e) => {
@@ -1117,19 +1105,6 @@ export default {
         this.customSlugHistory = [];
       }
     },
-    loadCustomBackendHistory() {
-      try {
-        const history = localStorage.getItem('customBackendHistory');
-        if (history) {
-          this.customBackendHistory = JSON.parse(history);
-        } else {
-          this.customBackendHistory = [];
-        }
-      } catch (e) {
-        console.error('加载后端历史记录失败:', e);
-        this.customBackendHistory = [];
-      }
-    },
     saveCustomSlugToHistory(slug) {
       if (!slug || typeof slug !== 'string') return;
 
@@ -1149,30 +1124,6 @@ export default {
         localStorage.setItem('customSlugHistory', JSON.stringify(this.customSlugHistory));
       } catch (e) {
         console.error('保存历史记录失败:', e);
-      }
-    },
-    saveCustomBackendToHistory(backend) {
-      if (!backend || typeof backend !== 'string') return;
-      
-      // 只保存非预设的后端地址(即以http开头的自定义地址)
-      if (!backend.startsWith('http')) return;
-
-      // 移除重复项
-      this.customBackendHistory = this.customBackendHistory.filter(item => item !== backend);
-
-      // 添加到开头
-      this.customBackendHistory.unshift(backend);
-
-      // 限制历史记录数量为20条
-      if (this.customBackendHistory.length > 20) {
-        this.customBackendHistory = this.customBackendHistory.slice(0, 20);
-      }
-
-      // 保存到本地存储
-      try {
-        localStorage.setItem('customBackendHistory', JSON.stringify(this.customBackendHistory));
-      } catch (e) {
-        console.error('保存后端历史记录失败:', e);
       }
     },
     goToProject() {
